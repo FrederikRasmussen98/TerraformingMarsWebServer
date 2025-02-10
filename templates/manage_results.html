@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Results - Mars Theme</title>
+    <style>
+        body {
+            background-image: url('/static/images/mars.jpg'); /* Replace with your Mars-themed image path */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: "Lucida Sans", Arial, sans-serif;
+            color: #fdf5e6; /* Warm Mars-like text color */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: rgba(50, 15, 15, 0.85); /* Semi-transparent dark Mars-like background */
+            width: 80%;
+            max-width: 1000px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ff9f43; /* Warm orange Mars-like color */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        
+        table, th, td {
+            color: #d35400;
+           border: 1px solid #ff6f47; /* Mars-inspired border */
+        }
+        select{
+               background-color: #d35400; /* Dark orange header */
+        color: white;  
+        }
+        input{
+        background-color: #d35400; /* Dark orange header */
+        color: white;   
+        }
+
+        th {
+     
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            background-color: rgba(255, 245, 230, 0.1); /* Subtle Mars-like cell background */
+        }
+
+        tbody tr:hover {
+            background-color: rgba(255, 99, 71, 0.2); /* Highlight Mars red */
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #e74c3c; /* Mars red */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+.table-container {
+    max-height: 900px; /* Adjust height as needed */
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+        .btn:hover {
+            background-color: #e67e22;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Game Results</h1>
+<div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Game Name</th>
+                    <th>Players and Points</th>
+                    <th>Game Score</th>
+                </tr>
+            </thead>
+            <tbody id="results_table_body"></tbody>
+        </table>
+    </div>
+        <div class="button-container">
+            <button onclick="submitResults()" class="btn">Save Changes</button>
+            <button class="btn" onclick="window.location.href='/'">Back to Main Page</button>
+        </div>
+    </div>
+    <script>
+        let resultsData = [];
+
+        async function fetchResults() {
+            const response = await fetch('/get_results');
+            resultsData = await response.json();
+            renderResultsTable();
+        }
+          function renderResultsTable() {
+            const resultsTableBody = document.getElementById("results_table_body");
+            resultsTableBody.innerHTML = "";
+
+            resultsData.forEach((result, index) => {
+                const row = document.createElement("tr");
+
+                const dateCell = document.createElement("td");
+                const dateInput = document.createElement("input");
+                dateInput.type = "date";
+                dateInput.value = result.date;
+                dateInput.onchange = (e) => (resultsData[index].date = e.target.value);
+                dateCell.appendChild(dateInput);
+                row.appendChild(dateCell);
+
+                const gameCell = document.createElement("td");
+                gameCell.textContent = result.game;
+                row.appendChild(gameCell);
+
+                const playersCell = document.createElement("td");
+                result.players.forEach((player, pIndex) => {
+                    const playerRow = document.createElement("div");
+
+                    const playerSelect = document.createElement("select");
+                    ["-- Select Player --", "Alstrup", "Frederik", "Magnus", "Best", "Johnni", "Raschke", "MicrobeMorten"].forEach(option => {
+                        const opt = document.createElement("option");
+                        opt.value = option === "-- Select Player --" ? "" : option;
+                        opt.textContent = option;
+                        opt.selected = player === option;
+                        playerSelect.appendChild(opt);
+                    });
+        
+            playerSelect.onchange = (e) => (resultsData[index].players[pIndex] = e.target.value);
+                    playerRow.appendChild(playerSelect);
+
+                    const pointsSelect = document.createElement("select");
+                    for (let i = 1; i <= 5; i++) {
+                        const opt = document.createElement("option");
+                        opt.value = i;
+                        opt.textContent = i;
+                        opt.selected = result.points[pIndex] == i;
+                        pointsSelect.appendChild(opt);
+                    }
+
+                    pointsSelect.onchange = (e) => (resultsData[index].points[pIndex] = parseInt(e.target.value));
+                    playerRow.appendChild(pointsSelect);
+
+                    playersCell.appendChild(playerRow);
+                });
+                row.appendChild(playersCell);
+
+                const gameScoreCell = document.createElement("td");
+                result.players.forEach((player, pIndex) => {
+                    const gameScoreDiv = document.createElement("div");
+                    const gameScoreSelect = document.createElement("select");
+                    const nullOption = document.createElement("option");
+                    nullOption.value = null;
+                    nullOption.textContent = "Null";
+                    gameScoreSelect.appendChild(nullOption);
+
+                    for (let i = 40; i <= 150; i++) {
+                        const opt = document.createElement("option");
+                        opt.value = i;
+                        opt.textContent = i;
+                        opt.selected = result.game_scores && result.game_scores[pIndex] === i;
+                        gameScoreSelect.appendChild(opt);
+                    }
+
+                    gameScoreSelect.onchange = (e) => {
+                        const selectedScore = e.target.value === "null" ? null : parseInt(e.target.value);
+                        result.game_scores[pIndex] = selectedScore;
+                    };
+
+                    gameScoreDiv.appendChild(gameScoreSelect);
+                    gameScoreCell.appendChild(gameScoreDiv);
+                });
+                row.appendChild(gameScoreCell);
+
+                resultsTableBody.appendChild(row);
+            });
+        }
+        
+
+        async function submitResults() {
+            await fetch('/update_results', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(resultsData),
+            });
+            alert("Results updated successfully!");
+        }
+        
+        
+
+        document.addEventListener("DOMContentLoaded", fetchResults);
+    </script>
+</body>
+</html>

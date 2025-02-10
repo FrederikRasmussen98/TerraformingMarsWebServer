@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Scores Plot</title>
+
+    <style>
+table {
+    width: 100%;
+    margin-top: 10px;
+    border: none;
+    background-color: rgba(255, 69, 0, 0.9); /* Mars red-orange background */
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden; /* Ensures content fits inside rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+}
+        body {
+            background-image: url('/static/images/mars.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-top: 2px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .plot-container, .stats-container {
+        padding: 20px; /* Add some padding for better spacing */
+        border: none; /* Border color to match the theme */
+        border-radius: 8px; /* Optional: rounded corners */
+        
+        }
+            .stats-container h3 {
+        font-size: 1.8rem;
+        font-family: Arial, sans-serif;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+        .checkbox-container {
+        margin-bottom: 10px;
+        background-color: rgba(139, 69, 19, 0.9);
+    }
+      .checkbox-container label {
+        display: block;
+        margin: 8px 0;
+    }
+      .checkbox-container input[type="checkbox"] {
+        margin-right: 10px;
+    }
+        button {
+            background-color: #e74c3c; /* Mars red */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        button:hover {
+            background-color: #e67e22;
+        }
+                .btn-primary {
+            background-color: #e74c3c; /* Mars red */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #e67e22;
+        }
+
+        .plot-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            border: 0px solid #ccc;
+            
+        }
+
+        .checkbox-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: rgba(50, 15, 15, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .checkbox-container label {
+            font-size: 1rem;
+            margin-left: 8px;
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+
+  
+        table {
+            width: 100%;
+            margin-top: 2px;
+            border-collapse: collapse;
+            background-color: #ffffff;
+        }
+
+     
+th, td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #a52a2a; /* Darker Mars red for borders */
+    color: white; /* White text for contrast */
+    font-family: 'Arial', sans-serif;
+}
+
+     
+th {
+    background-color: #b22222; /* Darker red for header cells */
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+tr:nth-child(even) {
+    background-color: rgba(139, 69, 19, 0.9); /* Mars-like brown for even rows */
+}
+
+tr:nth-child(odd) {
+    background-color: rgba(255, 99, 71, 0.9); /* Lighter red for odd rows */
+}
+
+tr:hover {
+    background-color: rgba(255, 69, 0, 0.7); /* Highlight row on hover */
+}
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    .container,
+    .plot-container,
+    .stats-container {
+        background-color: transparent; /* Keep containers transparent */
+        border: none
+       
+        
+    }
+    
+           .image-container {
+            max-width: 100px;  /* Set maximum width */
+            max-height: 100px; /* Set maximum height */
+            overflow: hidden;  /* Hide any content that exceeds the max dimensions */
+            border: 2px solid #ccc; /* Optional border */
+        }
+
+        .image-container img {
+            width: 100%; /* Make image responsive within the container */
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
+
+     <script>
+        async function fetchPlotData(players) {
+            const url = new URL('/generate_plot', window.location.origin);
+            players.forEach(player => url.searchParams.append('players', player));
+
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            console.log("Received stats:", data);
+            const currentWinner = data.stats['Current Winner'];
+            console.log("Current Winner:", currentWinner);
+
+            const plotImage = document.getElementById("plot_image");
+            plotImage.src = "data:image/png;base64," + data.plot_url;
+            
+            const plotImage2 = document.getElementById("plot_image2");
+            plotImage2.src = "data:image/png;base64," + data.plot2_url;
+
+            updateWinner(currentWinner)
+            
+           
+           
+
+ 
+
+           
+       
+
+            const playerStatsTable = document.getElementById("player_stats_table_body");
+playerStatsTable.innerHTML = "";  // Clear existing table content
+            const stats = data.stats;
+            const totalWins = stats['Total Wins'];
+            const totalPoints = stats['Total Points'];
+            
+           // Find the player with the most wins
+            let maxWins = -1;
+            let playerWithMaxWins = "";
+            
+const playerStats = stats['Player Stats'];
+for (const player in playerStats) {
+    const row = document.createElement("tr");
+
+
+    const playerCell = document.createElement("td");
+    playerCell.textContent = player;
+    row.appendChild(playerCell);
+
+    const totalGamesCell = document.createElement("td");
+    totalGamesCell.textContent = playerStats[player].total_games;
+    row.appendChild(totalGamesCell);
+    
+    const totalWinsCell = document.createElement("td");
+    totalWinsCell.textContent = parseInt(playerStats[player].total_wins, 10) || 0; // Convert to int
+    row.appendChild(totalWinsCell);
+    
+    const totalPointsCell = document.createElement("td");
+    totalPointsCell.textContent = playerStats[player].total_points.toFixed(0);
+    row.appendChild(totalPointsCell);
+
+    const meanPointsCell = document.createElement("td");
+    meanPointsCell.textContent = playerStats[player].mean_points.toFixed(1);
+    row.appendChild(meanPointsCell);
+
+    const stdPointsCell = document.createElement("td");
+    stdPointsCell.textContent = playerStats[player].std_points.toFixed(1);
+    row.appendChild(stdPointsCell);
+
+    const maxScoreCell = document.createElement("td");
+    maxScoreCell.textContent = playerStats[player].max_game_score.toFixed(0);
+    row.appendChild(maxScoreCell);
+
+    const minScoreCell = document.createElement("td");
+    minScoreCell.textContent = playerStats[player].min_game_score.toFixed(0);
+    row.appendChild(minScoreCell);
+
+
+
+    playerStatsTable.appendChild(row);
+    
+    if (totalWins[player] > maxWins) {
+                    maxWins = totalWins[player];
+                    playerWithMaxWins = player;
+                }
+}
+
+
+        }
+
+        function handlePlayerSelection() {
+            const selectedPlayers = Array.from(document.querySelectorAll('input[name="players"]:checked'))
+                .map(input => input.value);
+            fetchPlotData(selectedPlayers);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const selectedPlayers = Array.from(document.querySelectorAll('input[name="players"]:checked'))
+                .map(input => input.value);
+            fetchPlotData(selectedPlayers);
+        });
+        
+        
+     
+  
+  let currentWinner = null;
+        const musicFiles = {
+            "Frederik": "frederik_theme.mp3",
+            "Magnus": "magnus_theme.mp3",
+            "Morten": "morten_theme.mp3",
+            "Alstrup": "static/music/alstrupWin.mp3"
+        };
+        const backgroundImages = {
+                "Alstrup": "frederik_image.jpg",
+                "Magnus": "magnus_image.jpg",
+                "Morten": "morten_image.jpg"
+            };
+
+        function updateWinner(winner) {
+            if (currentWinner !== winner) {
+                currentWinner = winner;
+                 const winnerName = document.getElementById("winner-name");
+                const audio = document.getElementById("background-music");
+                const source = document.getElementById("music-source");
+                const imageContainer = document.getElementById("image-container");
+                
+                source.src = musicFiles[winner] || "";
+                //audio.load();  // Reload the audio source
+                //audio.play();  // Play the new track
+                
+                   // Update player image
+                    imageContainer.innerHTML = ""; // Clear previous image
+                    const image = document.createElement("img");
+                    image.src = `/static/images/${currentWinner}.png`; 
+                    image.alt = `Player with the most wins: ${currentWinner}`;
+                    imageContainer.appendChild(image);
+            }
+        }
+
+function enableAudioPlayback() {
+    const audio = document.getElementById('background-music');
+    //if (audio) {
+    //    audio.play().catch(error => console.error("Playback failed:", error));
+    //}
+                    audio.load();  // Reload the audio 
+                    audio.play();  // Play the new track
+    // Remove event listeners after first interaction
+    document.removeEventListener('mousedown', enableAudioPlayback);
+    document.removeEventListener('keydown', enableAudioPlayback);
+    //document.removeEventListener('scroll', enableAudioPlayback);
+}
+
+document.addEventListener('mousedown', enableAudioPlayback, { once: true });
+document.addEventListener('keydown', enableAudioPlayback, { once: true });
+document.addEventListener('scroll', enableAudioPlayback, { once: true });
+        
+    </script>
+    
+    
+    <!-- Audio Player -->
+    <audio id="background-music" loop>
+        <source id="music-source" src="" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    </head>
+<body>
+ 
+
+    <div class="container">
+    
+    <div class="plot-container" style="display: flex; flex-direction: column; align-items: center;">
+        <!-- Graph -->
+        <h2>Accumulated game scores</h2>
+        <img id="plot_image" alt="Accumulated Game Scores Plot" style="max-width: 100%; height: auto;" />
+        <h2>Game scores</h2>
+        <img id="plot_image2" alt="Game Scores Plot" style="max-width: 100%; height: auto;" />
+        <!-- Player Selection Form -->
+        <div class="stats-container" style="margin-top: 10px; width: 100%; text-align: center;">
+            <form id="player-selection-form" onsubmit="event.preventDefault(); handlePlayerSelection();">
+                <h3 style="color: white; font-size: 2rem; font-family: Arial, sans-serif; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
+                    Select Players to Plot:</h3>
+                <div class="checkbox-container" style="display: flex; justify-content: center; flex-wrap: wrap;">
+                    {% for player in players %}
+                        <label style="margin: 0 10px;">
+                            <input type="checkbox" name="players" value="{{ player }}" checked>
+                            {{ player }}
+                        </label>
+                    {% endfor %}
+                </div>
+                <button type="submit" >Generate Plot</button>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <!-- Stats and Player-Specific Stats Section -->
+       <!--         <h2>SON OF MARS</h2>
+    <!-- <div id="image-container" style="text-align: center;"></div>
+    <div class="stats-
+    container" style="display: flex; justify-content: space-between; margin-top: 5px;">
+        
+        
+
+        <!-- Player-Specific Stats Table -->
+
+
+        <div style="flex: 1; margin-left: 20px;">
+                    <h2>CURRENT SON OF MARS</h2> 
+     <div id="image-container" style="text-align: center;"></div>
+            <h3 style="text-align: center; color: white; font-size: 2rem; font-family: Arial, sans-serif; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
+                General Stats
+            </h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Total Games</th>
+                        <th>Total Wins</th>
+                        <th>Total Points</th>
+                        <th>Mean Points</th>
+                        <th>Std of Points</th>
+                        <th>Max Game Score</th>
+                        <th>Min Game Score</th>
+                    </tr>
+                </thead>
+                <tbody id="player_stats_table_body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    <button class="btn btn-primary" onclick="window.location.href='/'">Back to main page</button>
+
+</body>
+</html>

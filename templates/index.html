@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <title>Log Game Results</title>
+    <style>
+        body {
+            background-image: url('/static/images/mars.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: rgba(50, 15, 15, 0.85); /* Semi-transparent dark Mars-like background */
+            width: 80%;
+            max-width: 650px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+           .containerLogin {
+            background: rgba(50, 15, 15, 0.85); /* Semi-transparent dark Mars-like background */
+            width: 12%;
+            max-width: 250px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top:0;
+            right:0;
+            margin: 25px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #f39c12;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #f39c12;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 95%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #555;
+            color: white;
+        }
+
+        th {
+            background-color: #333;
+        }
+
+        button {
+            background-color: #e74c3c; /* Mars red */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        button:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-primary {
+            background-color: #e74c3c; /* Mars red */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #e67e22;
+        }
+        .navbar-text {
+        margin:15px;
+        }
+
+        #error_message {
+            color: #e74c3c;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        
+        
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+
+    <script>
+        const playerOptions = ["Alstrup", "Frederik", "Magnus", "Best", "Johnni", "Raschke", "MicrobeMorten"];
+
+        function updatePlayerTable() {
+            const maxPlayersInput = document.getElementById("max_players").value;
+            const playerTable = document.getElementById("player_table_body");
+            playerTable.innerHTML = ""; 
+
+            for (let i = 0; i < maxPlayersInput; i++) {
+                const row = document.createElement("tr");
+
+                const playerCell = document.createElement("td");
+                const playerSelect = document.createElement("select");
+                playerSelect.name = "player";
+                playerSelect.className = "player-select";
+                playerSelect.required = true;
+                playerSelect.onchange = validateUniqueInputs;
+
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.textContent = "-- Select Player --";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                playerSelect.appendChild(defaultOption);
+
+                playerOptions.forEach(option => {
+                    const opt = document.createElement("option");
+                    opt.value = option;
+                    opt.textContent = option;
+                    playerSelect.appendChild(opt);
+                });
+                playerCell.appendChild(playerSelect);
+                row.appendChild(playerCell);
+
+                const pointsCell = document.createElement("td");
+                const pointsSelect = document.createElement("select");
+                pointsSelect.name = "points";
+                pointsSelect.className = "points-select";
+                pointsSelect.required = true;
+                pointsSelect.onchange = validateUniqueInputs;
+
+                for (let j = 1; j <= 5; j++) {
+                    const opt = document.createElement("option");
+                    opt.value = j;
+                    opt.textContent = j;
+                    pointsSelect.appendChild(opt);
+                }
+                pointsCell.appendChild(pointsSelect);
+                row.appendChild(pointsCell);
+
+const gameScoreCell = document.createElement("td");
+                const gameScoreSelect = document.createElement("select");
+                gameScoreSelect.name = "game_score";
+
+                const defaultGameScore = document.createElement("option");
+                defaultGameScore.value = "";
+                defaultGameScore.textContent = "-- Optional --";
+                defaultGameScore.selected = true;
+                gameScoreSelect.appendChild(defaultGameScore);
+
+                for (let k = 40; k <= 150; k++) {
+                    const opt = document.createElement("option");
+                    opt.value = k;
+                    opt.textContent = k;
+                    gameScoreSelect.appendChild(opt);
+                }
+                gameScoreCell.appendChild(gameScoreSelect);
+                row.appendChild(gameScoreCell);
+
+                playerTable.appendChild(row);
+            }
+        }
+
+        function validateUniqueInputs() {
+            const playerSelects = document.querySelectorAll(".player-select");
+            const pointsSelects = document.querySelectorAll(".points-select");
+
+            const selectedPlayers = Array.from(playerSelects).map(select => select.value);
+            const selectedPoints = Array.from(pointsSelects).map(select => select.value);
+
+            const duplicatePlayers = selectedPlayers.filter((value, index, self) => value && self.indexOf(value) !== index);
+            const duplicatePoints = selectedPoints.filter((value, index, self) => value && self.indexOf(value) !== index);
+
+            const errorMessage = document.getElementById("error_message");
+
+            if (duplicatePlayers.length > 0 || duplicatePoints.length > 0) {
+                errorMessage.textContent = "Error: Duplicate player names or points are not allowed.";
+                document.getElementById("submit_button").disabled = true;
+            } else {
+                errorMessage.textContent = "";
+                document.getElementById("submit_button").disabled = false;
+            }
+        }
+        
+              // Function to play music
+        function playAudio() {
+            var audio = document.getElementById('background-music');
+            if (audio.paused) {
+                audio.play();
+                localStorage.setItem('musicPlaying', 'true');
+            }
+        }
+
+        // Function to stop music
+        function stopAudio() {
+            var audio = document.getElementById('background-music');
+            audio.pause();
+            localStorage.setItem('musicPlaying', 'false');
+        }
+
+        // Play music if it's saved as playing in localStorage
+        window.addEventListener('load', function() {
+            var audio = document.getElementById('background-music');
+            if (localStorage.getItem('musicPlaying') === 'true') {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+
+            // Ensure the music plays on user interaction
+            window.addEventListener('click', playAudio);
+            window.addEventListener('scroll', playAudio);
+        });
+
+        // Load another template dynamically via AJAX
+        document.getElementById('loadTemplateBtn').addEventListener('click', function() {
+            fetch('/load_another_template')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('content').innerHTML = data;
+                })
+                .catch(error => console.log('Error loading new template:', error));
+        });
+    </script>
+</head>
+<body>
+
+<header>
+   <!-- Persistent audio player -->
+    <audio id="background-music" loop>
+        <source src="{{ url_for('static', filename='music/background_music.mp3') }}" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+     
+    
+     <div class="containerLogin">
+     {% if 'username' in session %}
+                <span class="navbar-text">Welcome, {{ session['username'] }}!</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-primary btn-sm">Logout</a>
+            {% else %}
+                <form class="d-flex" method="POST" action="{{ url_for('login') }}">
+                    {{ login_form.hidden_tag() }}
+                    <input type="text" name="username" class="form-control me-2" placeholder="Username">
+                    <input type="password" name="password" class="form-control me-2" placeholder="Password">
+                    <button type="submit" class="btn btn-primary btn-sm">Login</button>
+                </form>
+            {% endif %}
+     </div>
+</header>
+
+  
+    
+    <div class="container">
+        <h1>Log Board Game Results</h1>
+        <form method="POST" action="/log">
+            <label for="date">Date:</label>
+            <input type="date" name="date" required><br>
+
+            <label for="game">Game Name:</label>
+            <select name="game" required>
+                <option value="Terraforming Mars">Terraforming Mars</option>
+            </select><br>
+
+            <label for="max_players">Number of Players (1-5):</label>
+            <select id="max_players" name="max_players" onchange="updatePlayerTable()" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select><br>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Points</th>
+                        <th>Game Score (Optional)</th>
+                    </tr>
+                </thead>
+                <tbody id="player_table_body"></tbody>
+            </table>
+            <script>updatePlayerTable();</script>
+
+            <p id="error_message"></p>
+            <button type="submit" id="submit_button">Save Result</button>
+            <button class="btn btn-primary" onclick="window.location.href='/manage_results'">Manage Previous Results</button>
+            <button class="btn btn-primary" onclick="window.location.href='/plots'">Plots</button>
+        </form>
+    </div>
+</body>
+</html>

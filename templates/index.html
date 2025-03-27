@@ -20,6 +20,14 @@
             align-items: center;
             height: 100vh;
         }
+        .button-container {
+    display: flex;
+    flex-wrap: wrap; /* Ensures they wrap if needed */
+    justify-content: center; /* Centers them horizontally */
+    gap: 10px; /* Adds space between buttons */
+    margin-top: 20px; /* Adds space above */
+}
+
 
         .container {
             background: rgba(50, 15, 15, 0.85); /* Semi-transparent dark Mars-like background */
@@ -330,9 +338,19 @@ const gameScoreCell = document.createElement("td");
             <script>updatePlayerTable();</script>
 
             <p id="error_message"></p>
-            <button type="submit" id="submit_button">Save Result</button>
-            <button class="btn btn-primary" onclick="window.location.href='/manage_results'">Manage Previous Results</button>
-            <button class="btn btn-primary" onclick="window.location.href='/plots'">Plots</button>
+            <div class="button-container">
+                <button type="submit" id="submit_button">Save Result</button>
+                <button class="btn btn-primary" onclick="window.location.href='/manage_results'">Manage Previous Results</button>
+                <button class="btn btn-primary" onclick="window.location.href='/plots'">Plots</button>
+                <button class="btn btn-primary" onclick="window.location.href='/houseRules'">House rules</button>
+                <button class="btn btn-success" onclick="window.open('https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå', '_blank')">
+                    Spin the Map
+                </button>
+                <button class="btn btn-warning" onclick="window.open('https://wheelofnames.com/?entries=Kongen,Gaystrup,Magnus,Microben,Best', '_blank')">
+                    Spin the Names
+                </button>
+            </div>
+            
         </form>
     </div>
 </body>

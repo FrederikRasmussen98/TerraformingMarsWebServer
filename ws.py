@@ -334,5 +334,9 @@ def update_results():
 def manage_results():
     return render_template('manage_results.html')
 
+@app.route('/houseRules')
+def houseRules():
+    return render_template('houseRules.html')
+
 if __name__ == "__main__":
     app.run(debug=True, port = 5000, host = '0.0.0.0')

@@ -27,7 +27,35 @@
     gap: 10px; /* Adds space between buttons */
     margin-top: 20px; /* Adds space above */
 }
+.dialog {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
 
+  .dialog-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    text-align: center;
+    min-width: 250px;
+    color: #C1440E;  /* Mars-colored text (a reddish-brown) */
+}
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
+  }
 
         .container {
             background: rgba(50, 15, 15, 0.85); /* Semi-transparent dark Mars-like background */
@@ -141,9 +169,40 @@
                 font-size: 2rem;
             }
         }
+
+        
+        .dialog {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .dialog-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+            text-align: center;
+            min-width: 250px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 20px;
+        }
     </style>
 
     <script>
+
+        
         const playerOptions = ["Alstrup", "Frederik", "Magnus", "Best", "Johnni", "Raschke", "MicrobeMorten"];
 
         function updatePlayerTable() {
@@ -276,6 +335,41 @@ const gameScoreCell = document.createElement("td");
                 })
                 .catch(error => console.log('Error loading new template:', error));
         });
+        
+  // Function to display the popup with a message
+  function showDialog(message) {
+            const dialog = document.getElementById('dialog');
+            const dialogMessage = document.getElementById('dialog-message');
+            dialogMessage.textContent = message;
+            dialog.style.display = 'flex';
+
+            // Automatically close the dialog after 5 seconds (optional)
+            setTimeout(() => {
+                dialog.style.display = 'none';
+            }, 5000);
+        }
+
+        // Function to handle the form submission via AJAX
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(event.target);  // Get form data
+
+            // Send the form data via AJAX to the /log endpoint
+            fetch('/log', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Show the message from the response in the dialog
+                showDialog(data.message);
+            })
+            .catch(error => {
+                // Handle any errors
+                showDialog("An error occurred. Please try again.");
+            });
+        }
     </script>
 </head>
 <body>
@@ -305,11 +399,27 @@ const gameScoreCell = document.createElement("td");
 
   
     
-    <div class="container">
-        <h1>Log Board Game Results</h1>
-        <form method="POST" action="/log">
-            <label for="date">Date:</label>
-            <input type="date" name="date" required><br>
+<div class="container">
+    <h1>Log Board Game Results</h1>
+    <form method="POST" action="/log" onsubmit="handleFormSubmit(event)">
+        <label for="date">Date:</label>
+        <input type="date" name="date" required><br>
+
+        <label for="season">Season:</label>
+        <select name="season" required>
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select><br>
+            
+        <div id="dialog" class="dialog">
+            <div class="dialog-content">
+                <span class="close-btn" onclick="document.getElementById('dialog').style.display = 'none'">&times;</span>
+                <p id="dialog-message"></p>  <!-- This is where the message will appear -->
+            </div>
+        </div>
 
             <label for="game">Game Name:</label>
             <select name="game" required>
@@ -343,6 +453,7 @@ const gameScoreCell = document.createElement("td");
                 <button class="btn btn-primary" onclick="window.location.href='/manage_results'">Manage Previous Results</button>
                 <button class="btn btn-primary" onclick="window.location.href='/plots'">Plots</button>
                 <button class="btn btn-primary" onclick="window.location.href='/houseRules'">House rules</button>
+                <button class="btn btn-primary" onclick="window.location.href='/hallOfFame'">Hall of fame</button>
                 <button class="btn btn-success" onclick="window.open('https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå', '_blank')">
                     Spin the Map
                 </button>

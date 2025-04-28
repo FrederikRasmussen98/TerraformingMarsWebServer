@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash, send_from_directory
 import json
 import os
 import matplotlib.pyplot as plt
@@ -25,6 +25,7 @@ else:
 @app.route('/')
 def home():
     return render_template('index.html')
+    
 
 
 app.secret_key = 'your_secret_key'
@@ -68,11 +69,14 @@ def logout():
 def generate_plot():
     # Get the players from the query parameters (passed via the URL)
     selected_players = request.args.getlist('players')
+    season = int(request.args.get('season', 1))  # Default to season 1 if not provided
 
     # Load the results from the JSON file
     with open('results.json', 'r') as file:
         game_data = json.load(file)
-    
+    game_data = [entry for entry in game_data if entry.get('season', 1) == season]
+    print("SEASON")
+    print(season)
     # Extract all unique players and dates
     players = set(player for entry in game_data for player in entry['players'])
     dates = sorted(set(entry['date'] for entry in game_data))
@@ -80,6 +84,7 @@ def generate_plot():
     # If specific players are selected, filter the data
     if selected_players:
         players = [player for player in players if player in selected_players]
+
     
     # Initialize player scores dictionary with 0 for each player on each date
     player_scores = {player: [0] * len(dates) for player in players}
@@ -119,16 +124,20 @@ def generate_plot():
     currentWinnerScore = 0
     # Accumulate scores over time for each player
     for player in player_scores:
+        # Create a copy of the original scores
         player_game_points[player] = list(player_scores[player])
         
+        # Update winner info based on final game score
         if player_game_points[player][-1] > currentWinnerScore:
             currentWinner = player
-            currentWinnerScore = player_game_points[player][-1] 
+            currentWinnerScore = player_game_points[player][-1]
         
+        # Accumulate scores over time
         for i in range(1, len(player_scores[player])):
             player_scores[player][i] += player_scores[player][i - 1]
         
-        player_points[player] = player_scores[player][i]
+        # Get final accumulated score
+        player_points[player] = player_scores[player][-1]
     print("WINNER:")
     print(currentWinner)
     # Calculate player statistics
@@ -285,7 +294,6 @@ def show_plots():
     return render_template('plots.html', players=players)
 
 @app.route('/log', methods=['POST'])
-
 def log_result():
     data = request.form
     num_players = int(data.get("max_players"))
@@ -296,9 +304,13 @@ def log_result():
     # Convert game_scores to None if empty
     game_scores = [int(score) if score else None for score in game_scores]
 
+    # Extract season value
+    season = int(data.get("season"))
+
     new_result = {
         "date": data.get("date"),
         "game": data.get("game"),
+        "season": season,  # Add the season to the result
         "players": players,
         "points": points,
         "game_scores": game_scores,
@@ -307,8 +319,8 @@ def log_result():
     results.append(new_result)
     with open(DATA_FILE, "w") as file:
         json.dump(results, file, indent=4)
+    
     return jsonify({"message": "Result saved!"}), 200
-
 
 
 @app.route('/get_results', methods=['GET'])
@@ -329,7 +341,22 @@ def update_results():
         json.dump(updated_results, f, indent=4)
     return jsonify({"status": "success"})
 
+@app.route('/update_season', methods=['POST'])
+def update_season():
+    season = int(request.form['season'])
+    players = rank_players(season)
+    return jsonify(players=players)
 
+def rank_players(season):
+    # Sort the players based on their points
+    players = player_data[season]
+    sorted_players = sorted(players, key=lambda x: x['points'], reverse=True)
+
+    # Assign ranks
+    for i, player in enumerate(sorted_players):
+        player['rank'] = i + 1
+
+    return sorted_players
 @app.route('/manage_results')
 def manage_results():
     return render_template('manage_results.html')
@@ -337,6 +364,18 @@ def manage_results():
 @app.route('/houseRules')
 def houseRules():
     return render_template('houseRules.html')
+
+
+@app.route('/hallOfFame')
+def hallOfFame():
+    return render_template('hallOfFame.html')  # Replace with your Hall of Fame page HTML
+
+
+
+
+@app.route('/result.json')
+def serve_json():
+    return send_from_directory('.', 'results.json')  # Serve result.json from the root folder
 
 if __name__ == "__main__":
     app.run(debug=True, port = 5000, host = '0.0.0.0')

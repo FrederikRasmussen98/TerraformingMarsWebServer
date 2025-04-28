@@ -193,6 +193,11 @@ tr:hover {
             const url = new URL('/generate_plot', window.location.origin);
             players.forEach(player => url.searchParams.append('players', player));
 
+            const season = document.getElementById("season-select").value;
+            if (season && season !== "all") {
+                url.searchParams.append("season", season);
+            }
+
             const response = await fetch(url);
             const data = await response.json();
             
@@ -353,7 +358,16 @@ document.addEventListener('scroll', enableAudioPlayback, { once: true });
     </head>
 <body>
  
-
+    <div style="text-align: center; margin: 10px;">
+        <label for="season-select" style="color: white; font-size: 1.2rem;">Choose Season:</label>
+        <select id="season-select" onchange="handlePlayerSelection()" style="font-size: 1rem; padding: 5px; border-radius: 5px;">
+            <option value="1">Season 1</option>
+            <option value="2" selected>Season 2</option> <!-- Default selected -->
+            <!-- <option value="3">Season 3</option> -->
+            <!-- Add more as needed -->
+        </select>
+    </div>
+    
     <div class="container">
     
     <div class="plot-container" style="display: flex; flex-direction: column; align-items: center;">

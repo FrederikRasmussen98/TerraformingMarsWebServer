@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraforming Mars Hall of Fame</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('/static/images/mars.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(50, 15, 15, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #e74c3c;
+            margin-bottom: 30px;
+        }
+
+        .player-frame {
+            position: relative;
+            display: inline-block;
+            border: 5px solid #f39c12;
+            border-radius: 50%;
+            padding: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .player-frame img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .rank-label {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+        }
+
+        /* Custom Frame Styles */
+
+        .gold {
+            border-color: #ffd700;
+            box-shadow: 0 0 25px #ffd700;
+        }
+
+        .silver {
+            border-color: #c0c0c0;
+            box-shadow: 0 0 20px #c0c0c0;
+        }
+
+        .bronze {
+            border-color: #cd7f32;
+            box-shadow: 0 0 18px #cd7f32;
+        }
+
+        .wood {
+            border-color: #8b4513;
+            box-shadow: 0 0 12px #8b4513;
+        }
+
+        /* Rank label colors */
+
+        .gold .rank-label {
+            background: #ffd700;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .silver .rank-label {
+            background: #c0c0c0;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .bronze .rank-label {
+            background: #cd7f32;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .wood .rank-label {
+            background: #8b4513;
+            color: #fff;
+        }
+
+        /* Button */
+
+        .btn-back {
+            margin-top: 30px;
+            display: block;
+            width: 100%;
+            background-color: #e74c3c;
+            color: white;
+            font-size: 1.2rem;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .btn-back:hover {
+            background-color: #e67e22;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .player-frame img {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    
+    <div class="container">
+        <h1>Hall of Fame</h1>
+        <div style="text-align: center; margin: 10px;">
+            <label for="season-select" style="color: white; font-size: 1.2rem;">Choose Season:</label>
+            <select id="season-select" onchange="handlePlayerSelection()" style="font-size: 1rem; padding: 5px; border-radius: 5px;">
+                <option value="1">Season 1</option>
+                <option value="2" selected>Season 2</option> <!-- Default selected -->
+                <!-- <option value="3">Season 3</option> -->
+                <!-- Add more as needed -->
+            </select>
+        </div>
+        
+
+        <div class="row text-center mt-4">
+            <!-- 1st Place -->
+            <div class="col-12 mb-4">
+                <div class="player-frame gold">
+                    <img src="/static/images/Frederik.png" alt="Winner">
+                    <div class="rank-label">🏆 1st </div>
+                </div>
+            </div>
+
+            <!-- 2nd and 3rd Place -->
+            <div class="col-6 mb-4">
+                <div class="player-frame silver">
+                    <img src="/static/images/Alstrup.png" alt="Second Place">
+                    <div class="rank-label">🥈 2nd</div>
+                </div>
+            </div>
+
+            <div class="col-6 mb-4">
+                <div class="player-frame bronze">
+                    <img src="/static/images/Best.png" alt="Third Place">
+                    <div class="rank-label">🥉 3rd</div>
+                </div>
+            </div>
+
+            <!-- Other players -->
+            <div class="col-4 mb-4">
+                <div class="player-frame wood">
+                    <img src="/static/images/player4.jpg" alt="Player Four">
+                    <div class="rank-label">Lost in Space</div>
+                </div>
+            </div>
+
+            <div class="col-4 mb-4">
+                <div class="player-frame wood">
+                    <img src="/static/images/player5.jpg" alt="Player Five">
+                    <div class="rank-label">Lost in Space</div>
+                </div>
+            </div>
+
+            <div class="col-4 mb-4">
+                <div class="player-frame wood">
+                    <img src="/static/images/player6.jpg" alt="Player Six">
+                    <div class="rank-label">Lost in Space</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-back" onclick="window.location.href='/'">Back to Main Page</button>
+    </div>
+
+    <script>
+        // Call the function when the page loads
+        document.addEventListener('DOMContentLoaded', handlePlayerSelection);
+    
+        async function handlePlayerSelection() {
+            const season = document.getElementById('season-select').value;
+    
+            // Fetch the result.json file
+            try {
+                const response = await fetch('/result.json');
+                const results = await response.json();
+    
+                // Filter results for the selected season
+                const seasonResults = results.filter(result => result.season == season);
+    
+                // Calculate total points for each player
+                const playerPoints = {};
+    
+                seasonResults.forEach(result => {
+                    result.points.forEach((point, index) => {
+                        const player = result.players[index];
+                        const points = parseInt(point);
+                        if (playerPoints[player]) {
+                            playerPoints[player] += points;
+                        } else {
+                            playerPoints[player] = points;
+                        }
+                    });
+                });
+    
+                // Sort players by total points (in descending order)
+                const sortedPlayers = Object.keys(playerPoints)
+                    .map(player => ({ name: player, points: playerPoints[player] }))
+                    .sort((a, b) => b.points - a.points);
+    
+                // Get all player frames and labels
+                const playerFrames = document.querySelectorAll('.player-frame');
+                const playerLabels = document.querySelectorAll('.rank-label');
+    
+                // Update player frames dynamically based on the sorted players
+                sortedPlayers.forEach((player, index) => {
+                    const frame = playerFrames[index];
+                    const label = playerLabels[index];
+                    const img = frame.querySelector('img');
+    
+                    // Set player image, rank, and frame class
+                    img.src = `/static/images/${player.name}.png`; // Assuming the image names are the player names
+                    label.textContent = `Rank ${index + 1}: ${player.name} - ${player.points} points`;
+    
+                    // Assign frame class based on rank
+                    if (index === 0) {
+                        frame.className = 'player-frame gold';
+                        label.classList.add('gold');
+                    } else if (index === 1) {
+                        frame.className = 'player-frame silver';
+                        label.classList.add('silver');
+                    } else if (index === 2) {
+                        frame.className = 'player-frame bronze';
+                        label.classList.add('bronze');
+                    } else {
+                        frame.className = 'player-frame wood';
+                        label.classList.add('wood');
+                    }
+                });
+    
+            } catch (error) {
+                console.error("Error fetching result.json:", error);
+            }
+        }
+    </script>
+    
+    
+</body>
+</html>

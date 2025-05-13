@@ -1,0 +1,531 @@
+[
+    {
+        "date": "2024-11-07",
+        "game": "Terraforming Mars",
+        "game_scores": [
+            71,
+            59,
+            56,
+            52
+        ],
+        "players": [
+            "Frederik",
+            "Magnus",
+            "Best",
+            "Alstrup"
+        ],
+        "points": [
+            "4",
+            "3",
+            "2",
+            "1"
+        ]
+    },
+    {
+        "date": "2024-11-14",
+        "game": "Terraforming Mars",
+        "game_scores": [
+            82,
+            86,
+            null,
+            69
+        ],
+        "players": [
+            "Magnus",
+            "Frederik",
+            "Alstrup",
+            "Best"
+        ],
+        "points": [
+            "3",
+            "4",
+            "1",
+            "2"
+        ]
+    },
+    {
+        "date": "2024-11-21",
+        "game": "Terraforming Mars",
+        "game_scores": [
+            67,
+            71,
+            71,
+            77
+        ],
+        "players": [
+            "Frederik",
+            "Magnus",
+            "Best",
+            "Alstrup"
+        ],
+        "points": [
+            "1",
+            "2",
+            "3",
+            "4"
+        ]
+    },
+    {
+        "date": "2024-11-28",
+        "game": "Terraforming Mars",
+        "game_scores": [
+            73,
+            71,
+            70,
+            63
+        ],
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus",
+            "Best"
+        ],
+        "points": [
+            "2",
+            "3",
+            "4",
+            "1"
+        ]
+    },
+    {
+        "date": "2024-12-05",
+        "game": "Terraforming Mars",
+        "game_scores": [
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "players": [
+            "Magnus",
+            "Frederik",
+            "Alstrup",
+            "Best",
+            "MicrobeMorten"
+        ],
+        "points": [
+            "5",
+            "3",
+            "1",
+            "2",
+            "4"
+        ]
+    },
+    {
+        "date": "2024-12-12",
+        "game": "Terraforming Mars",
+        "game_scores": [
+            77,
+            81,
+            79,
+            61
+        ],
+        "players": [
+            "Magnus",
+            "Frederik",
+            "Alstrup",
+            "Best"
+        ],
+        "points": [
+            "2",
+            "4",
+            "3",
+            "1"
+        ]
+    },
+    {
+        "date": "2024-12-19",
+        "game": "Terraforming Mars",
+        "game_scores": [
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus",
+            "Best",
+            "Raschke"
+        ],
+        "points": [
+            "5",
+            "4",
+            "1",
+            "2",
+            "3"
+        ]
+    },
+    {
+        "date": "2024-12-26",
+        "game": "Terraforming Mars",
+        "game_scores": [
+            69,
+            76,
+            69,
+            71,
+            54
+        ],
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus",
+            "Best",
+            "Raschke"
+        ],
+        "points": [
+            "3",
+            "5",
+            "2",
+            "4",
+            "1"
+        ]
+    },
+    {
+        "date": "2025-01-09",
+        "game": "Terraforming Mars",
+        "players": [
+            "Frederik",
+            "Magnus",
+            "Best",
+            "MicrobeMorten",
+            "Alstrup"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            92,
+            87,
+            80,
+            76,
+            70
+        ]
+    },
+    {
+        "date": "2025-01-13",
+        "game": "Terraforming Mars",
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus",
+            "Best",
+            "MicrobeMorten"
+        ],
+        "points": [
+            "3",
+            "5",
+            "2",
+            "4",
+            "1"
+        ],
+        "game_scores": [
+            75,
+            80,
+            66,
+            78,
+            53
+        ]
+    },
+    {
+        "date": "2025-01-22",
+        "game": "Terraforming Mars",
+        "players": [
+            "Frederik",
+            "Magnus",
+            "Best",
+            "MicrobeMorten",
+            "Alstrup"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            90,
+            76,
+            76,
+            68,
+            63
+        ]
+    },
+    {
+        "date": "2025-02-06",
+        "game": "Terraforming Mars",
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "MicrobeMorten",
+            "Best",
+            "Magnus"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            68,
+            67,
+            58,
+            53,
+            47
+        ]
+    },
+    {
+        "date": "2025-02-13",
+        "game": "Terraforming Mars",
+        "players": [
+            "Best",
+            "Magnus",
+            "Frederik",
+            "Alstrup"
+        ],
+        "points": [
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            92,
+            88,
+            85,
+            79
+        ]
+    },
+    {
+        "date": "2025-02-17",
+        "game": "Terraforming Mars",
+        "players": [
+            "Frederik",
+            "Alstrup",
+            "MicrobeMorten",
+            "Magnus",
+            "Best"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            77,
+            67,
+            64,
+            57,
+            57
+        ]
+    },
+    {
+        "date": "2025-02-24",
+        "game": "Terraforming Mars",
+        "players": [
+            "Best",
+            "Alstrup",
+            "Frederik",
+            "MicrobeMorten",
+            "Magnus"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            78,
+            74,
+            70,
+            68,
+            66
+        ]
+    },
+    {
+        "date": "2025-03-05",
+        "game": "Terraforming Mars",
+        "players": [
+            "Magnus",
+            "Frederik",
+            "Alstrup",
+            "Raschke",
+            "Best"
+        ],
+        "points": [
+            "3",
+            "5",
+            "4",
+            "1",
+            "2"
+        ],
+        "game_scores": [
+            77,
+            92,
+            79,
+            54,
+            70
+        ]
+    },
+    {
+        "date": "2025-03-09",
+        "game": "Terraforming Mars",
+        "players": [
+            "Alstrup",
+            "Best",
+            "Frederik",
+            "MicrobeMorten",
+            "Magnus"
+        ],
+        "points": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+        ],
+        "game_scores": [
+            54,
+            56,
+            57,
+            59,
+            62
+        ]
+    },
+    {
+        "date": "2025-03-17",
+        "game": "Terraforming Mars",
+        "players": [
+            "Frederik",
+            "Alstrup",
+            "Raschke",
+            "Best",
+            "Magnus"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            85,
+            79,
+            78,
+            72,
+            71
+        ]
+    },
+    {
+        "date": "2025-03-23",
+        "game": "Terraforming Mars",
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus",
+            "MicrobeMorten",
+            "Best"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            99,
+            81,
+            80,
+            71,
+            71
+        ]
+    },
+    {
+        "date": "2025-03-27",
+        "game": "Terraforming Mars",
+        "players": [
+            "Frederik",
+            "Magnus",
+            "Best",
+            "Alstrup",
+            "MicrobeMorten"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            89,
+            80,
+            69,
+            68,
+            66
+        ]
+    },
+    {
+        "date": "2025-04-10",
+        "game": "Terraforming Mars",
+        "players": [
+            "Alstrup",
+            "Best",
+            "Magnus",
+            "MicrobeMorten",
+            "Frederik"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            84,
+            78,
+            77,
+            77,
+            63
+        ]
+    },
+    {
+        "date": "2025-04-16",
+        "game": "Terraforming Mars",
+        "players": [
+            "Raschke",
+            "Alstrup",
+            "Magnus",
+            "Best"
+        ],
+        "points": [
+            "1",
+            "2",
+            "3",
+            "4"
+        ],
+        "game_scores": [
+            76,
+            79,
+            87,
+            89
+        ]
+    }
+]

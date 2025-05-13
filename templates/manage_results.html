@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Results - Mars Theme</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+     <title>Manage Results - Mars Theme</title>
     <style>
         body {
             background-image: url('/static/images/mars.jpg'); /* Replace with your Mars-themed image path */
@@ -115,6 +117,17 @@
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <div class="navbar-buttons">
+            <a href="/plots">Plots</a>
+            <a href="/manage_results">Manage Previous Results</a>
+            <a href="/houseRules">House Rules</a>
+            <a href="/">Submit result</a>
+            <a href="/hallOfFame">Hall of Fame</a>
+            <a href="https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå" target="_blank">Spin the Map</a>
+            <a href="https://wheelofnames.com/?entries=Kongen,Gaystrup,Magnus,Microben,Best" target="_blank">Spin the Names</a>
+        </div>
+    </div>
     <div class="container">
         <h1>Manage Game Results</h1>
 <div class="table-container">

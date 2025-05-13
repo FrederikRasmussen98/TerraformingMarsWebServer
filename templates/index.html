@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">   
     <title>Log Game Results</title>
     <style>
         body {
@@ -11,7 +12,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            font-family: Arial, sans-serif;
+            font-family: Orbitron, sans-serif;
             margin: 0;
             padding: 0;
             color: white;
@@ -20,6 +21,10 @@
             align-items: center;
             height: 100vh;
         }
+
+       
+
+
         .button-container {
     display: flex;
     flex-wrap: wrap; /* Ensures they wrap if needed */
@@ -47,7 +52,7 @@
     min-width: 250px;
     color: #C1440E;  /* Mars-colored text (a reddish-brown) */
 }
-  }
+  
 
   .close-btn {
     position: absolute;
@@ -203,7 +208,7 @@
     <script>
 
         
-        const playerOptions = ["Alstrup", "Frederik", "Magnus", "Best", "Johnni", "Raschke", "MicrobeMorten"];
+        const playerOptions = ["Alstrup", "Frederik", "Magnus", "Best", "Raschke", "MicrobeMorten"];
 
         function updatePlayerTable() {
             const maxPlayersInput = document.getElementById("max_players").value;
@@ -373,7 +378,18 @@ const gameScoreCell = document.createElement("td");
     </script>
 </head>
 <body>
-
+    <div class="navbar">
+        <div class="navbar-buttons">
+            <a href="/plots">Plots</a>
+            <a href="/houseRules">House Rules</a>
+            <a href="/">Submit result</a>
+            <a href="/hallOfFame">Hall of Fame</a>
+            <a href="https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå" target="_blank">Spin the Map</a>
+            <a href="https://wheelofnames.com/?entries=Kongen,Gaystrup,Magnus,Microben,Best" target="_blank">Spin the Names</a>
+            <a href="https://wheelofnames.com/?entries=TITAN,GANYMEDE,MIRANDA,PLUTO,ENCELADUS,TRITON,CERES,EUROPA,IO,CALLISTO,LUNA" target="_blank">Spin the Moons</a>
+        </div>
+    </div>
+    
 <header>
    <!-- Persistent audio player -->
     <audio id="background-music" loop>
@@ -382,19 +398,7 @@ const gameScoreCell = document.createElement("td");
     </audio>
      
     
-     <div class="containerLogin">
-     {% if 'username' in session %}
-                <span class="navbar-text">Welcome, {{ session['username'] }}!</span>
-                <a href="{{ url_for('logout') }}" class="btn btn-primary btn-sm">Logout</a>
-            {% else %}
-                <form class="d-flex" method="POST" action="{{ url_for('login') }}">
-                    {{ login_form.hidden_tag() }}
-                    <input type="text" name="username" class="form-control me-2" placeholder="Username">
-                    <input type="password" name="password" class="form-control me-2" placeholder="Password">
-                    <button type="submit" class="btn btn-primary btn-sm">Login</button>
-                </form>
-            {% endif %}
-     </div>
+
 </header>
 
   
@@ -409,9 +413,6 @@ const gameScoreCell = document.createElement("td");
         <select name="season" required>
           <option value="1">1</option>
           <option value="2" selected>2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
         </select><br>
             
         <div id="dialog" class="dialog">
@@ -450,17 +451,7 @@ const gameScoreCell = document.createElement("td");
             <p id="error_message"></p>
             <div class="button-container">
                 <button type="submit" id="submit_button">Save Result</button>
-                <button class="btn btn-primary" onclick="window.location.href='/manage_results'">Manage Previous Results</button>
-                <button class="btn btn-primary" onclick="window.location.href='/plots'">Plots</button>
-                <button class="btn btn-primary" onclick="window.location.href='/houseRules'">House rules</button>
-                <button class="btn btn-primary" onclick="window.location.href='/hallOfFame'">Hall of fame</button>
-                <button class="btn btn-success" onclick="window.open('https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå', '_blank')">
-                    Spin the Map
-                </button>
-                <button class="btn btn-warning" onclick="window.open('https://wheelofnames.com/?entries=Kongen,Gaystrup,Magnus,Microben,Best', '_blank')">
-                    Spin the Names
-                </button>
-            </div>
+
             
         </form>
     </div>

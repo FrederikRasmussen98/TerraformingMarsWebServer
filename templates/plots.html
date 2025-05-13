@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
     <title>Game Scores Plot</title>
 
     <style>
@@ -20,10 +22,12 @@ table {
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            font-family: Arial, sans-serif;
+            font-family: Orbitron, sans-serif;
             background-color: #f9f9f9;
             margin: 0;
             padding: 0;
+            text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.95);
+            
         }
 
         h1, h2 {
@@ -298,16 +302,12 @@ for (const player in playerStats) {
   
   let currentWinner = null;
         const musicFiles = {
-            "Frederik": "frederik_theme.mp3",
-            "Magnus": "magnus_theme.mp3",
-            "Morten": "morten_theme.mp3",
+            "Frederik": "static/music/frederikWin.mp3",
+            "Magnus": "static/music/magnusWin.mp3",
+            "Morten": "static/music/mortenWin.mp3",
             "Alstrup": "static/music/alstrupWin.mp3"
         };
-        const backgroundImages = {
-                "Alstrup": "frederik_image.jpg",
-                "Magnus": "magnus_image.jpg",
-                "Morten": "morten_image.jpg"
-            };
+
 
         function updateWinner(winner) {
             if (currentWinner !== winner) {
@@ -357,16 +357,30 @@ document.addEventListener('scroll', enableAudioPlayback, { once: true });
     </audio>
     </head>
 <body>
+    <div class="navbar">
+        <div class="navbar-buttons">
+            <a href="/plots">Plots</a>
+            <a href="/houseRules">House Rules</a>
+            <a href="/">Submit result</a>
+            <a href="/hallOfFame">Hall of Fame</a>
+            <a href="https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå" target="_blank">Spin the Map</a>
+            <a href="https://wheelofnames.com/?entries=Kongen,Gaystrup,Magnus,Microben,Best" target="_blank">Spin the Names</a>
+            <a href="https://wheelofnames.com/?entries=TITAN,GANYMEDE,MIRANDA,PLUTO,ENCELADUS,TRITON,CERES,EUROPA,IO,CALLISTO,LUNA" target="_blank">Spin the Moons</a>
+
+        </div>
+    </div>
+    
  
-    <div style="text-align: center; margin: 10px;">
+    <div style="text-align: center; margin: 10px; padding-top: 60px;">
         <label for="season-select" style="color: white; font-size: 1.2rem;">Choose Season:</label>
         <select id="season-select" onchange="handlePlayerSelection()" style="font-size: 1rem; padding: 5px; border-radius: 5px;">
-            <option value="1"selected>Season 1</option>
-            <option value="2" >Season 2</option> <!-- Default selected -->
+            <option value="1" selected>Season 1</option>
+            <option value="2">Season 2</option> <!-- Default selected -->
             <!-- <option value="3">Season 3</option> -->
             <!-- Add more as needed -->
         </select>
     </div>
+
     
     <div class="container">
     
@@ -379,7 +393,7 @@ document.addEventListener('scroll', enableAudioPlayback, { once: true });
         <!-- Player Selection Form -->
         <div class="stats-container" style="margin-top: 10px; width: 100%; text-align: center;">
             <form id="player-selection-form" onsubmit="event.preventDefault(); handlePlayerSelection();">
-                <h3 style="color: white; font-size: 2rem; font-family: Arial, sans-serif; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
+                <h2 style="color: white; font-size: 2rem;">
                     Select Players to Plot:</h3>
                 <div class="checkbox-container" style="display: flex; justify-content: center; flex-wrap: wrap;">
                     {% for player in players %}
@@ -411,9 +425,9 @@ document.addEventListener('scroll', enableAudioPlayback, { once: true });
         <div style="flex: 1; margin-left: 20px;">
                     <h2>CURRENT SON OF MARS</h2> 
      <div id="image-container" style="text-align: center;"></div>
-            <h3 style="text-align: center; color: white; font-size: 2rem; font-family: Arial, sans-serif; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
+            <h2 style="text-align: center; color: white; font-size: 2rem">
                 General Stats
-            </h3>
+            </h2>   
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr>
@@ -433,7 +447,6 @@ document.addEventListener('scroll', enableAudioPlayback, { once: true });
     </div>
 </div>
 
-    <button class="btn btn-primary" onclick="window.location.href='/'">Back to main page</button>
 
 </body>
 </html>

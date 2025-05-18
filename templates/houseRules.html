@@ -4,7 +4,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-        <title>Terraforming Mars House Rules</title>
+    <title>Terraforming Mars House Rules</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 
     <style>
@@ -15,16 +15,14 @@
             background-repeat: no-repeat;
             font-family: Orbitron, sans-serif;
             color: white;
-            padding: 80px;
-                        justify-content: center;
-            align-items: center;
 
         }
 
         .container {
             background: rgba(50, 15, 15, 0.85); /* Semi-transparent Mars-like background */
             border-radius: 15px;
-            padding: 20px;
+            margin-top: 80px;
+            padding: 80px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
             max-width: 800px;
             margin: auto;
@@ -91,6 +89,13 @@
                 font-size: 2rem;
             }
         }
+        main {
+  padding: 30px 0;
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
     </style>
 </head>
 <body>
@@ -99,13 +104,10 @@
             <a href="/plots">Plots</a>
             <a href="/houseRules">House Rules</a>
             <a href="/">Submit result</a>
-            <a href="/hallOfFame">Hall of Fame</a>
-            <a href="https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå" target="_blank">Spin the Map</a>
-            <a href="https://wheelofnames.com/?entries=Kongen,Gaystrup,Magnus,Microben,Best" target="_blank">Spin the Names</a>
-            <a href="https://wheelofnames.com/?entries=TITAN,GANYMEDE,MIRANDA,PLUTO,ENCELADUS,TRITON,CERES,EUROPA,IO,CALLISTO,LUNA" target="_blank">Spin the Moons</a>
-
+            <a href="/wheelOfNames">Spin the What</a>
         </div>
     </div>
+    <main></main>
     <div class="container">
         <h1> House Rules</h1>
 
@@ -143,7 +145,7 @@
         </div>
 
     </div>
-
+</main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

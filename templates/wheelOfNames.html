@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stacked Wheels of Names</title>
+
+  
+  <!-- External CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  
+  <style>
+    body {
+      background-image: url('/static/images/mars.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: Orbitron, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: white;
+    }
+  
+    .navbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 15px 0;
+      background: rgba(0, 0, 0, 0.8);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+  
+    .navbar-buttons a {
+      color: #ff7043;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 5px 10px;
+      transition: color 0.3s ease;
+    }
+  
+    .navbar-buttons a:hover {
+      color: #ffa07a;
+    }
+  
+    main {
+      padding-top: 100px;
+      padding-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .wheel-container {
+      width: 350px;
+      margin: 0 auto 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    iframe {
+      border: none;
+      width: 100%;
+      max-width: 350px;
+      height: 480px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      background: #2a0d0d;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+    }
+  
+    iframe:focus {
+      outline: 3px solid #ff7043;
+      box-shadow: 0 0 20px #ff7043;
+    }
+  
+    .wheel-container a {
+      margin-top: 12px;
+      color: #ff7043;
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-decoration: none;
+      letter-spacing: 0.8px;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+      transition: color 0.3s ease;
+    }
+  
+    .wheel-container a:hover,
+    .wheel-container a:focus {
+      color: #ffa07a;
+      text-shadow: 0 0 8px rgba(255, 140, 0, 0.9);
+      outline: none;
+    }
+  </style>
+  
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-buttons">
+            <a href="/plots">Plots</a>
+            <a href="/houseRules">House Rules</a>
+            <a href="/">Submit result</a>
+            <a href="/wheelOfNames">Spin the What</a>
+        </div>
+    </div>
+   
+  
+
+  <main id="wheels"></main>
+
+  <script>
+    const wheels = [
+      {
+        url: "https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå",
+        label: "Spin the Map",
+      },
+      {
+        url: "https://wheelofnames.com/?entries=Kongen,Gaystrup,Magnus,Microben,Best",
+        label: "Spin the Names",
+      },
+      {
+        url: "https://wheelofnames.com/?entries=TITAN,GANYMEDE,MIRANDA,PLUTO,ENCELADUS,TRITON,CERES,EUROPA,IO,CALLISTO,LUNA",
+        label: "Spin the Moons",
+      },
+    ];
+
+    const navbar = document.querySelector('.navbar');
+    const wheelsContainer = document.getElementById('wheels');
+
+  
+    // Generate stacked wheel containers
+    wheels.forEach(({url, label}) => {
+      const container = document.createElement('section');
+      container.className = 'wheel-container';
+
+      const iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.scrolling = 'no';
+      iframe.title = label;
+      iframe.allowFullscreen = true;
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.textContent = label;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.setAttribute('aria-label', `Open ${label} in new tab`);
+
+      container.appendChild(iframe);
+      container.appendChild(link);
+      wheelsContainer.appendChild(container);
+    });
+  </script>
+</body>
+</html>

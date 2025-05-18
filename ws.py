@@ -366,9 +366,9 @@ def houseRules():
     return render_template('houseRules.html')
 
 
-@app.route('/hallOfFame')
-def hallOfFame():
-    return render_template('hallOfFame.html')  # Replace with your Hall of Fame page HTML
+@app.route('/wheelOfNames')
+def wheelOfNames():
+    return render_template('wheelOfNames.html')  # Replace with your Hall of Fame page HTML
 
 
 

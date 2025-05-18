@@ -22,31 +22,41 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.10);
     box-shadow: 2px 2px 20px rgba(255, 70, 0, 0.15);
 }
-
+.navbar a {
+    font-family: 'Orbitron', sans-serif;
+    color: #ff7043;
+    text-decoration: none;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    transition: all 0.4s ease;
+    text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.8);
+    
+}
 .navbar-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: 50px;
     justify-content: center;
   }
-  
-  @media (max-width: 600px) {
-    .navbar-buttons {
-      flex-direction: column;
-      align-items: center;
-    }
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 8px 10px;
   }
-  
-.navbar a {
-    font-family: 'Orbitron', sans-serif;
-    color: #ff7043;
-    text-decoration: none;
-    font-size: 1.2rem;
-    letter-spacing: 1px;
-    transition: all 0.4s ease;
-    text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.8);
-    
+
+  .navbar-buttons {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .navbar a {
+    font-size: 1rem;
+    padding: 4px 6px;
+  }
 }
+  
+
 
 .navbar a:hover {
     color: #ffa07a;

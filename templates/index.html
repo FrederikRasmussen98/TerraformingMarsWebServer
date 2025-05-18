@@ -14,13 +14,33 @@
             background-repeat: no-repeat;
             font-family: Orbitron, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 50px;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
+     #max_players_buttons button {
+  margin-right: 5px;
+  padding: 10px 20px;
+  background-color: rgba(120, 120, 120, 0.7);  /* darker grey */
+  color: white;
+  border: 1px solid transparent;  /* default no border */
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+#max_players_buttons button:hover {
+  background-color: rgba(100, 100, 100, 0.8);  /* slightly darker on hover */
+}
+
+#max_players_buttons button.active {
+  color: white;
+  border: 2px solid orange;
+}
+
 
        
 
@@ -208,78 +228,11 @@ th {
 
     <script>
 
-        
+
         const playerOptions = ["Alstrup", "Frederik", "Magnus", "Best", "Raschke", "MicrobeMorten"];
 
-        function updatePlayerTable() {
-            const maxPlayersInput = document.getElementById("max_players").value;
-            const playerTable = document.getElementById("player_table_body");
-            playerTable.innerHTML = ""; 
+        
 
-            for (let i = 0; i < maxPlayersInput; i++) {
-                const row = document.createElement("tr");
-
-                const playerCell = document.createElement("td");
-                const playerSelect = document.createElement("select");
-                playerSelect.name = "player";
-                playerSelect.className = "player-select";
-                playerSelect.required = true;
-                playerSelect.onchange = validateUniqueInputs;
-
-                const defaultOption = document.createElement("option");
-                defaultOption.value = "";
-                defaultOption.textContent = "-- Select Player --";
-                defaultOption.disabled = true;
-                defaultOption.selected = true;
-                playerSelect.appendChild(defaultOption);
-
-                playerOptions.forEach(option => {
-                    const opt = document.createElement("option");
-                    opt.value = option;
-                    opt.textContent = option;
-                    playerSelect.appendChild(opt);
-                });
-                playerCell.appendChild(playerSelect);
-                row.appendChild(playerCell);
-
-                const pointsCell = document.createElement("td");
-                const pointsSelect = document.createElement("select");
-                pointsSelect.name = "points";
-                pointsSelect.className = "points-select";
-                pointsSelect.required = true;
-                pointsSelect.onchange = validateUniqueInputs;
-
-                for (let j = 1; j <= 5; j++) {
-                    const opt = document.createElement("option");
-                    opt.value = j;
-                    opt.textContent = j;
-                    pointsSelect.appendChild(opt);
-                }
-                pointsCell.appendChild(pointsSelect);
-                row.appendChild(pointsCell);
-
-const gameScoreCell = document.createElement("td");
-                const gameScoreSelect = document.createElement("select");
-                gameScoreSelect.name = "game_score";
-
-                const defaultGameScore = document.createElement("option");
-                defaultGameScore.value = "";
-                defaultGameScore.textContent = "-- Optional --";
-                defaultGameScore.selected = true;
-                gameScoreSelect.appendChild(defaultGameScore);
-
-                for (let k = 40; k <= 150; k++) {
-                    const opt = document.createElement("option");
-                    opt.value = k;
-                    opt.textContent = k;
-                    gameScoreSelect.appendChild(opt);
-                }
-                gameScoreCell.appendChild(gameScoreSelect);
-                row.appendChild(gameScoreCell);
-
-                playerTable.appendChild(row);
-            }
-        }
 
         function validateUniqueInputs() {
             const playerSelects = document.querySelectorAll(".player-select");
@@ -376,6 +329,103 @@ const gameScoreCell = document.createElement("td");
                 showDialog("An error occurred. Please try again.");
             });
         }
+
+
+        
+        function selectPlayerButton(el, numPlayers) {
+    // Remove active class from all buttons
+    document.querySelectorAll('#max_players_buttons button').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    // Add active class to the clicked button
+    el.classList.add('active');
+
+    // Call your existing function
+    updatePlayerTable(numPlayers);
+  }
+ 
+
+  function updatePlayerTable(numPlayers) {
+    console.log("Selected players: " + numPlayers);
+    // your logic here
+  }
+
+  function updatePlayerTable(maxPlayersInput) {
+    const playerTable = document.getElementById("player_table_body");
+    playerTable.innerHTML = ""; 
+
+    for (let i = 0; i < maxPlayersInput; i++) {
+        const row = document.createElement("tr");
+
+        // Player select cell
+        const playerCell = document.createElement("td");
+        const playerSelect = document.createElement("select");
+        playerSelect.name = "player";
+        playerSelect.className = "player-select";
+        playerSelect.required = true;
+        playerSelect.onchange = validateUniqueInputs;
+
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "-- Select Player --";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        playerSelect.appendChild(defaultOption);
+
+        playerOptions.forEach(option => {
+            const opt = document.createElement("option");
+            opt.value = option;
+            opt.textContent = option;
+            playerSelect.appendChild(opt);
+        });
+        playerCell.appendChild(playerSelect);
+        row.appendChild(playerCell);
+
+        // Points select cell
+        const pointsCell = document.createElement("td");
+        const pointsSelect = document.createElement("select");
+        pointsSelect.name = "points";
+        pointsSelect.className = "points-select";
+        pointsSelect.required = true;
+        pointsSelect.onchange = validateUniqueInputs;
+
+        for (let j = 1; j <= 5; j++) {
+            const opt = document.createElement("option");
+            opt.value = j;
+            opt.textContent = j;
+            pointsSelect.appendChild(opt);
+        }
+        pointsCell.appendChild(pointsSelect);
+        row.appendChild(pointsCell);
+
+        // Game score select cell (optional)
+        const gameScoreCell = document.createElement("td");
+        const gameScoreSelect = document.createElement("select");
+        gameScoreSelect.name = "game_score";
+
+        const defaultGameScore = document.createElement("option");
+        defaultGameScore.value = "";
+        defaultGameScore.textContent = "-- Optional --";
+        defaultGameScore.selected = true;
+        gameScoreSelect.appendChild(defaultGameScore);
+
+        for (let k = 40; k <= 150; k++) {
+            const opt = document.createElement("option");
+            opt.value = k;
+            opt.textContent = k;
+            gameScoreSelect.appendChild(opt);
+        }
+        gameScoreCell.appendChild(gameScoreSelect);
+        row.appendChild(gameScoreCell);
+
+        playerTable.appendChild(row);
+    }
+}
+   // Call selectPlayerButton initially for button 4
+   window.onload = function() {
+    const fourthButton = document.querySelectorAll('#max_players_buttons button')[3]; // zero-based index
+    selectPlayerButton(fourthButton, 4);
+  };
     </script>
 </head>
 <body>
@@ -425,14 +475,15 @@ const gameScoreCell = document.createElement("td");
                 <option value="Terraforming Mars">Terraforming Mars</option>
             </select><br>
 
-            <label for="max_players">Number of Players (1-5):</label>
-            <select id="max_players" name="max_players" onchange="updatePlayerTable()" required>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select><br>
+            <label>Number of Players (1-5):</label><br>
+            <div id="max_players_buttons">
+                <button type="button" onclick="selectPlayerButton(this, 1)">1</button>
+                <button type="button" onclick="selectPlayerButton(this, 2)">2</button>
+                <button type="button" onclick="selectPlayerButton(this, 3)">3</button>
+                <button type="button" onclick="selectPlayerButton(this, 4)">4</button>
+                <button type="button" onclick="selectPlayerButton(this, 5)">5</button>
+              </div>
+              <br>
             
             <table>
                 <thead>
@@ -444,7 +495,6 @@ const gameScoreCell = document.createElement("td");
                 </thead>
                 <tbody id="player_table_body"></tbody>
             </table>
-            <script>updatePlayerTable();</script>
 
             <p id="error_message"></p>
             <div class="button-container">

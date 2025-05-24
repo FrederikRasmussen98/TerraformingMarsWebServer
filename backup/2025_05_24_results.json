@@ -549,5 +549,104 @@
             89
         ],
         "season": 1
+    },
+    {
+        "date": "2025-04-29",
+        "game": "Terraforming Mars",
+        "season": 1,
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus",
+            "Raschke",
+            "Best"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            107,
+            93,
+            86,
+            83,
+            75
+        ]
+    },
+    {
+        "date": "2025-04-29",
+        "game": "Terraforming Mars",
+        "season": 1,
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus",
+            "Raschke",
+            "Best"
+        ],
+        "points": [
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            107,
+            93,
+            86,
+            83,
+            75
+        ]
+    },
+    {
+        "date": "2025-05-05",
+        "game": "Terraforming Mars",
+        "season": 1,
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus",
+            "Best",
+            "MicrobeMorten"
+        ],
+        "points": [
+            "4",
+            "5",
+            "1",
+            "3",
+            "2"
+        ],
+        "game_scores": [
+            81,
+            81,
+            46,
+            69,
+            68
+        ]
+    },
+ 
+    {
+        "date": "2025-05-19",
+        "game": "Terraforming Mars",
+        "season": 2,
+        "players": [
+            "Alstrup",
+            "Magnus",
+            "Frederik"
+        ],
+        "points": [
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            135,
+            115,
+            109
+        ]
     }
 ]

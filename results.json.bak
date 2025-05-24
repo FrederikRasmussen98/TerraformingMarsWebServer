@@ -628,7 +628,37 @@
             68
         ]
     },
- 
+    {
+        "date": "2025-05-31",
+        "game": "Terraforming Mars",
+        "season": 2,
+        "players": [
+            "Frederik"
+        ],
+        "points": [
+            "1"
+        ],
+        "game_scores": [
+            null
+        ]
+    },
+    {
+        "date": "2025-05-24",
+        "game": "Terraforming Mars",
+        "season": 2,
+        "players": [
+            "Alstrup",
+            "Magnus"
+        ],
+        "points": [
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            null,
+            null
+        ]
+    },
     {
         "date": "2025-05-19",
         "game": "Terraforming Mars",

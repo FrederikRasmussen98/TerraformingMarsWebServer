@@ -292,35 +292,46 @@ def show_plots():
 
     # Pass the players to the template
     return render_template('plots.html', players=players)
-
 @app.route('/log', methods=['POST'])
 def log_result():
-    data = request.form
-    num_players = int(data.get("max_players"))
-    players = data.getlist("player")[:num_players]
-    points = data.getlist("points")[:num_players]
-    game_scores = data.getlist("game_score")[:num_players]
+    try:
+        data = request.form
+        print("Received form data:", data)  # Debug print
 
-    # Convert game_scores to None if empty
-    game_scores = [int(score) if score else None for score in game_scores]
+        players = data.getlist("player")
+        num_players = len(players)
 
-    # Extract season value
-    season = int(data.get("season"))
+        points = data.getlist("points")[:num_players]
+        game_scores = data.getlist("game_score")[:num_players]
 
-    new_result = {
-        "date": data.get("date"),
-        "game": data.get("game"),
-        "season": season,  # Add the season to the result
-        "players": players,
-        "points": points,
-        "game_scores": game_scores,
-    }
+        game_scores = [int(score) if score is not None and score != '' else None for score in game_scores]
 
-    results.append(new_result)
-    with open(DATA_FILE, "w") as file:
-        json.dump(results, file, indent=4)
-    
-    return jsonify({"message": "Result saved!"}), 200
+        season_value = data.get("season")
+        if not season_value:
+            return jsonify({"message": "Season is missing."}), 400
+
+        season = int(season_value)
+
+        new_result = {
+            "date": data.get("date"),
+            "game": data.get("game"),
+            "season": season,
+            "players": players,
+            "points": points,
+            "game_scores": game_scores,
+        }
+
+        results.append(new_result)
+        with open(DATA_FILE, "w") as file:
+            json.dump(results, file, indent=4)
+
+        return jsonify({"message": "Result saved!"}), 200
+
+    except Exception as e:
+        print("Error while saving result:", e)
+        return jsonify({"message": "Failed to save result"}), 500
+
+
 
 
 @app.route('/get_results', methods=['GET'])

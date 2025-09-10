@@ -145,8 +145,15 @@ th, td {
     border: 1px solid #a52a2a; /* Darker Mars red for borders */
     color: white; /* White text for contrast */
     font-family: 'Arial', sans-serif;
+    cursor: pointer;
+    color: white;
 }
-
+th.asc::after {
+    content: " ↓";
+}
+th.desc::after {
+    content: " ↑";
+}
      
 th {
     background-color: #b22222; /* Darker red for header cells */
@@ -271,6 +278,9 @@ for (const player in playerStats) {
     const minScoreCell = document.createElement("td");
     minScoreCell.textContent = playerStats[player].min_game_score.toFixed(0);
     row.appendChild(minScoreCell);
+	
+	// Sort after table has been filled
+    //sortTable(2);
 
 
 
@@ -279,6 +289,7 @@ for (const player in playerStats) {
     if (totalWins[player] > maxWins) {
                     maxWins = totalWins[player];
                     playerWithMaxWins = player;
+
                 }
 }
 
@@ -311,6 +322,7 @@ for (const player in playerStats) {
 
         function updateWinner(winner) {
             if (currentWinner !== winner) {
+
                 currentWinner = winner;
                  const winnerName = document.getElementById("winner-name");
                 const audio = document.getElementById("background-music");
@@ -327,8 +339,44 @@ for (const player in playerStats) {
                     image.src = `/static/images/${currentWinner}.png`; 
                     image.alt = `Player with the most wins: ${currentWinner}`;
                     imageContainer.appendChild(image);
+
+
             }
         }
+function sortTable(columnIndex) {
+    const table = document.querySelector("table");
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    const headers = table.querySelectorAll("th");
+    const currentHeader = headers[columnIndex];
+    const isDescending = currentHeader.classList.contains("desc");
+
+    // Clear sort classes from all headers
+    headers.forEach(th => th.classList.remove("asc", "desc"));
+
+    // Determine sort direction (default to descending on first click)
+    const sortDirection = isDescending ? 'asc' : 'desc';
+
+    // Sort rows
+    rows.sort((a, b) => {
+        const cellA = a.children[columnIndex].textContent.trim();
+        const cellB = b.children[columnIndex].textContent.trim();
+
+        const valueA = isNaN(cellA) ? cellA.toLowerCase() : parseFloat(cellA);
+        const valueB = isNaN(cellB) ? cellB.toLowerCase() : parseFloat(cellB);
+
+        if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+        if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    // Apply new sort direction class
+    currentHeader.classList.add(sortDirection);
+
+    // Re-append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+}
 
 function enableAudioPlayback() {
     const audio = document.getElementById('background-music');
@@ -341,6 +389,7 @@ function enableAudioPlayback() {
     document.removeEventListener('mousedown', enableAudioPlayback);
     document.removeEventListener('keydown', enableAudioPlayback);
     //document.removeEventListener('scroll', enableAudioPlayback);
+
 }
 
 document.addEventListener('mousedown', enableAudioPlayback, { once: true });
@@ -426,14 +475,14 @@ document.addEventListener('scroll', enableAudioPlayback, { once: true });
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th>Player</th>
-                        <th>Total Games</th>
-                        <th>Total Wins</th>
-                        <th>Total Points</th>
-                        <th>Mean Points</th>
-                        <th>Std of Points</th>
-                        <th>Max Game Score</th>
-                        <th>Min Game Score</th>
+                        <th onclick="sortTable(0)">Player</th>
+			<th onclick="sortTable(1)">Total Games</th>
+			<th onclick="sortTable(2)">Total Wins</th>
+			<th onclick="sortTable(3)">Total Points</th>
+			<th onclick="sortTable(4)">Mean Points</th>
+			<th onclick="sortTable(5)">Std of Points</th>
+			<th onclick="sortTable(6)">Max Game Score</th>
+			<th onclick="sortTable(7)">Min Game Score</th>
                     </tr>
                 </thead>
                 <tbody id="player_stats_table_body"></tbody>

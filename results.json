@@ -888,75 +888,134 @@
         ]
     },
     {
-        "date": "2025-08-31",
-        "game": "Terraforming Mars",
-        "season": 2,
-        "players": [
-            "MicrobeMorten",
-            "Magnus",
-            "Best",
-            "Frederik",
-            "Alstrup"
-        ],
-        "points": [
-            "5",
-            "4",
-            "3",
-            "2",
-            "1"
-        ],
-        "game_scores": [
-            64,
-            62,
-            60,
-            60,
-            60
-        ]
-    },
-    {
-        "date": "2025-09-04",
+        "date": "2025-10-18",
         "game": "Terraforming Mars",
         "season": 2,
         "players": [
             "Alstrup",
-            "Magnus",
             "Frederik",
-            "Best"
+            "Magnus"
         ],
         "points": [
-            "4",
             "3",
             "2",
             "1"
         ],
         "game_scores": [
-            107,
-            96,
-            91,
-            82
+            54,
+            45,
+            40
         ]
     },
     {
-        "date": "2025-09-08",
+        "date": "2025-10-18",
         "game": "Terraforming Mars",
         "season": 2,
         "players": [
             "Magnus",
+            "Frederik",
+            "Alstrup"
+        ],
+        "points": [
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            54,
+            46,
+            41
+        ]
+    },
+    {
+        "date": "2025-10-28",
+        "game": "Terraforming Mars",
+        "season": 2,
+        "players": [
             "Alstrup",
             "Best",
             "Frederik"
         ],
         "points": [
-            "4",
             "3",
             "2",
             "1"
         ],
         "game_scores": [
-            145,
-            132,
-            121,
-            120
+            54,
+            46,
+            41
+        ]
+    },
+    {
+        "date": "2025-10-31",
+        "game": "Terraforming Mars",
+        "season": 2,
+        "players": [
+            "Magnus",
+            "Frederik"
+        ],
+        "points": [
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            null,
+            null
+        ]
+    },
+    {
+        "date": "2025-11-28",
+        "game": "Terraforming Mars",
+        "season": 2,
+        "players": [
+            "Alstrup",
+            "Frederik",
+            "Magnus"
+        ],
+        "points": [
+            "3",
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            null,
+            null,
+            null
+        ]
+    },
+    {
+        "date": "2025-12-18",
+        "game": "Terraforming Mars",
+        "season": 2,
+        "players": [
+            "Magnus",
+            "Alstrup"
+        ],
+        "points": [
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            43,
+            40
+        ]
+    },
+    {
+        "date": "2026-01-22",
+        "game": "Terraforming Mars",
+        "season": 2,
+        "players": [
+            "Best",
+            "Frederik"
+        ],
+        "points": [
+            "2",
+            "1"
+        ],
+        "game_scores": [
+            40,
+            41
         ]
     }
 ]

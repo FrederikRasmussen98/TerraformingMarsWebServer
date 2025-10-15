@@ -17,18 +17,7 @@ table {
     overflow: hidden; /* Ensures content fits inside rounded corners */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Shadow for depth */
 }
-        body {
-            background-image: url('/static/images/mars.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            font-family: Orbitron, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-            text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.95);
-            
-        }
+
 
         h1, h2 {
             text-align: center;
@@ -45,12 +34,7 @@ table {
             padding: 20px;
         }
 
-        .plot-container, .stats-container {
-        padding: 20px; /* Add some padding for better spacing */
-        border: none; /* Border color to match the theme */
-        border-radius: 8px; /* Optional: rounded corners */
-        
-        }
+
             .stats-container h3 {
         font-size: 1.8rem;
         font-family: Arial, sans-serif;
@@ -99,14 +83,7 @@ table {
             background-color: #e67e22;
         }
 
-        .plot-container img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            border: 0px solid #ccc;
-            
-        }
+  
 
         .checkbox-container {
             display: grid;
@@ -193,10 +170,7 @@ tr:hover {
             border: 2px solid #ccc; /* Optional border */
         }
 
-        .image-container img {
-            width: 100%; /* Make image responsive within the container */
-            height: auto; /* Maintain aspect ratio */
-        }
+
     </style>
 
      <script>
@@ -315,34 +289,37 @@ for (const player in playerStats) {
         const musicFiles = {
             "Frederik": "static/music/frederikWin.mp3",
             "Magnus": "static/music/magnusWin.mp3",
+            "Best": "static/music/bestWin.mp3",
             "Morten": "static/music/mortenWin.mp3",
+            "Raschke": "static/music/raschkeWin.mp3",
             "Alstrup": "static/music/alstrupWin.mp3"
         };
 
 
-        function updateWinner(winner) {
-            if (currentWinner !== winner) {
+function updateWinner(winner) {
+    if (currentWinner !== winner) {
+        currentWinner = winner;
 
-                currentWinner = winner;
-                 const winnerName = document.getElementById("winner-name");
-                const audio = document.getElementById("background-music");
-                const source = document.getElementById("music-source");
-                const imageContainer = document.getElementById("image-container");
-                
-                source.src = musicFiles[winner] || "";
-                //audio.load();  // Reload the audio source
-                //audio.play();  // Play the new track
-                
-                   // Update player image
-                    imageContainer.innerHTML = ""; // Clear previous image
-                    const image = document.createElement("img");
-                    image.src = `/static/images/${currentWinner}.png`; 
-                    image.alt = `Player with the most wins: ${currentWinner}`;
-                    imageContainer.appendChild(image);
+        const source = document.getElementById("music-source");
+        const audio = document.getElementById("background-music");
+        const imageContainer = document.getElementById("image-container");
 
+        // Update music source
+        source.src = musicFiles[winner] || "";
+        audio.load();
 
-            }
+        if (localStorage.getItem('musicPlaying') === 'true') {
+            audio.play().catch(() => {});
         }
+
+        // Update player image
+        imageContainer.innerHTML = "";
+        const image = document.createElement("img");
+        image.src = `/static/images/${currentWinner}.png`;
+        image.alt = `Player with the most wins: ${currentWinner}`;
+        imageContainer.appendChild(image);
+    }
+}
 function sortTable(columnIndex) {
     const table = document.querySelector("table");
     const tbody = table.tBodies[0];
@@ -378,24 +355,22 @@ function sortTable(columnIndex) {
     rows.forEach(row => tbody.appendChild(row));
 }
 
+// Handle initial user interaction to allow audio autoplay
 function enableAudioPlayback() {
     const audio = document.getElementById('background-music');
-    //if (audio) {
-    //    audio.play().catch(error => console.error("Playback failed:", error));
-    //}
-                    audio.load();  // Reload the audio 
-                    audio.play();  // Play the new track
-    // Remove event listeners after first interaction
+    if (audio.paused) {
+        audio.play().catch(() => {});
+        localStorage.setItem('musicPlaying', 'true');
+    }
     document.removeEventListener('mousedown', enableAudioPlayback);
     document.removeEventListener('keydown', enableAudioPlayback);
-    //document.removeEventListener('scroll', enableAudioPlayback);
-
+    document.removeEventListener('scroll', enableAudioPlayback);
 }
 
 document.addEventListener('mousedown', enableAudioPlayback, { once: true });
 document.addEventListener('keydown', enableAudioPlayback, { once: true });
 document.addEventListener('scroll', enableAudioPlayback, { once: true });
-        
+
     </script>
     
     
@@ -417,7 +392,7 @@ document.addEventListener('scroll', enableAudioPlayback, { once: true });
  
     <div style="text-align: center; margin: 10px; padding-top: 60px;">
         <label for="season-select" style="color: white; font-size: 1.2rem;">Choose Season:</label>
-        <select id="season-select" onchange="handlePlayerSelection()" style="font-size: 1rem; padding: 5px; border-radius: 5px;">
+        <select id="season-select" onchange="handlePlayerSelection()" style="font-size: 1rem; padding: 5px; border-radius: 5px; width: 5%;">
             <option value="1" >Season 1</option>
             <option value="2"selected>Season 2</option> <!-- Default selected -->
             <!-- <option value="3">Season 3</option> -->
@@ -466,8 +441,8 @@ document.addEventListener('scroll', enableAudioPlayback, { once: true });
         <!-- Player-Specific Stats Table -->
 
 
-        <div style="flex: 1; margin-left: 20px;">
-                    <h2>CURRENT SON OF MARS</h2> 
+        <div class="containerImageColumn" style="flex: 1; margin-left: 20px;">
+                    <h2>CURRENT SON OF VENUS</h2> 
      <div id="image-container" style="text-align: center;"></div>
             <h2 style="text-align: center; color: white; font-size: 2rem">
                 General Stats

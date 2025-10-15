@@ -1,363 +1,260 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.75, viewport-fit=cover">   
-    <title>Log Game Results</title>
-    <style>
-        body {
-            background-image: url('/static/images/mars.jpg'); /* Replace with your image path */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            font-family: Orbitron, sans-serif;
-            margin: 0;
-            padding: 50px;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-     #max_players_buttons button {
-  margin-right: 5px;
-  padding: 10px 20px;
-  background-color: rgba(120, 120, 120, 0.7);  /* darker grey */
-  color: white;
-  border: 1px solid transparent;  /* default no border */
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
+{% block title %}Log Game Results{% endblock %}
 
-#max_players_buttons button:hover {
-  background-color: rgba(100, 100, 100, 0.8);  /* slightly darker on hover */
-}
+{% block head %}
+<style>
+    body {
+        color: white;
+    }
 
-#max_players_buttons button.active {
-  color: white;
-  border: 2px solid orange;
-}
+    .container {
+        background: rgba(50, 15, 15, 0.85);
+        border-radius: 15px;
+        margin-top: 150px;
+        padding: 40px 60px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        max-width: 650px;
+        margin-left: auto;
+        margin-right: auto;
+        position: relative;
+    }
 
-
-       
-
-
-        .button-container {
-    display: flex;
-    flex-wrap: wrap; /* Ensures they wrap if needed */
-    justify-content: center; /* Centers them horizontally */
-    gap: 10px; /* Adds space between buttons */
-    margin-top: 20px; /* Adds space above */
-}
-.dialog {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-  }
-
-  .dialog-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    position: relative;
-    text-align: center;
-    min-width: 250px;
-    color: #C1440E;  /* Mars-colored text (a reddish-brown) */
-}
-  
-
-  .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    cursor: pointer;
-    font-size: 20px;
-  }
-
-        .container {
-            background: rgba(50, 15, 15, 0.85); /* Semi-transparent dark Mars-like background */
-            width: 80%;
-            max-width: 650px;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
-           .containerLogin {
-            background: rgba(50, 15, 15, 0.85); /* Semi-transparent dark Mars-like background */
-            width: 12%;
-            max-width: 250px;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            position: absolute;
-            top:0;
-            right:0;
-            margin: 25px;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #f39c12;
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #f39c12;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input, select {
-            width: 95%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-        }
-
-             table {
-    width: 100%;
-    margin-bottom: 20px;
-    border-collapse: collapse;
-    border: none; /* Remove outer border */
-}
-
-th, td {
-    padding: 4px 8px 0px; /* Minimal padding */
-    text-align: center;
-    border: none; /* No inside borders */
-    color: white;
-}
-
-th {
-    background-color: #333;
-}
-
-        button {
-            background-color: #e74c3c; /* Mars red */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin: 0 10px;
-            text-decoration: none;
-        }
-
-        button:hover {
-            background-color: #e67e22;
-        }
-
-        .btn-primary {
-            background-color: #e74c3c; /* Mars red */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin: 0 10px;
-            text-decoration: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #e67e22;
-        }
-        .navbar-text {
-        margin:15px;
-        }
-
-        #error_message {
-            color: #e74c3c;
-            font-size: 1.2rem;
-            margin-top: 10px;
-        }
-        
-        
-        @media (max-width: 768px) {
-            .container {
-                width: 95%;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-        }
-
-        
-        .dialog {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-        }
-
-        .dialog-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            position: relative;
-            text-align: center;
-            min-width: 250px;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            cursor: pointer;
-            font-size: 20px;
-        }
-    </style>
-
-    <script>
-
-
-        const playerOptions = ["Alstrup", "Frederik", "Magnus", "Best", "Raschke", "MicrobeMorten"];
-
-        
-
-
-        function validateUniqueInputs() {
-            const playerSelects = document.querySelectorAll(".player-select");
-            const pointsSelects = document.querySelectorAll(".points-select");
-
-            const selectedPlayers = Array.from(playerSelects).map(select => select.value);
-            const selectedPoints = Array.from(pointsSelects).map(select => select.value);
-
-            const duplicatePlayers = selectedPlayers.filter((value, index, self) => value && self.indexOf(value) !== index);
-            const duplicatePoints = selectedPoints.filter((value, index, self) => value && self.indexOf(value) !== index);
-
-            const errorMessage = document.getElementById("error_message");
-
-            if (duplicatePlayers.length > 0 || duplicatePoints.length > 0) {
-                errorMessage.textContent = "Error: Duplicate player names or points are not allowed.";
-                document.getElementById("submit_button").disabled = true;
-            } else {
-                errorMessage.textContent = "";
-                document.getElementById("submit_button").disabled = false;
-            }
-        }
-        
-              // Function to play music
-        function playAudio() {
-            var audio = document.getElementById('background-music');
-            if (audio.paused) {
-                audio.play();
-                localStorage.setItem('musicPlaying', 'true');
-            }
-        }
-
-        // Function to stop music
-        function stopAudio() {
-            var audio = document.getElementById('background-music');
-            audio.pause();
-            localStorage.setItem('musicPlaying', 'false');
-        }
-
-        // Play music if it's saved as playing in localStorage
-        window.addEventListener('load', function() {
-            var audio = document.getElementById('background-music');
-            if (localStorage.getItem('musicPlaying') === 'true') {
-                audio.play();
-            } else {
-                audio.pause();
-            }
-
-            // Ensure the music plays on user interaction
-            window.addEventListener('click', playAudio);
-            window.addEventListener('scroll', playAudio);
-        });
-
-        // Load another template dynamically via AJAX
-        document.getElementById('loadTemplateBtn').addEventListener('click', function() {
-            fetch('/load_another_template')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('content').innerHTML = data;
-                })
-                .catch(error => console.log('Error loading new template:', error));
-        });
-        
-  // Function to display the popup with a message
-  function showDialog(message) {
-            const dialog = document.getElementById('dialog');
-            const dialogMessage = document.getElementById('dialog-message');
-            dialogMessage.textContent = message;
-            dialog.style.display = 'flex';
-
-            // Automatically close the dialog after 5 seconds (optional)
-            setTimeout(() => {
-                dialog.style.display = 'none';
-            }, 5000);
-        }
-
-        // Function to handle the form submission via AJAX
-        function handleFormSubmit(event) {
-            event.preventDefault(); // Prevent default form submission
-
-            const formData = new FormData(event.target);  // Get form data
-
-            // Send the form data via AJAX to the /log endpoint
-            fetch('/log', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Show the message from the response in the dialog
-                showDialog(data.message);
-            })
-            .catch(error => {
-                // Handle any errors
-                showDialog("An error occurred. Please try again.");
-            });
-        }
-
-
-        
-        function selectPlayerButton(el, numPlayers) {
-    // Remove active class from all buttons
-    document.querySelectorAll('#max_players_buttons button').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    // Add active class to the clicked button
-    el.classList.add('active');
-
-    // Call your existing function
-    updatePlayerTable(numPlayers);
-  }
  
 
-  function updatePlayerTable(numPlayers) {
-    console.log("Selected players: " + numPlayers);
-    // your logic here
-  }
+ 
 
-  function updatePlayerTable(maxPlayersInput) {
+
+
+    table {
+        width: 100%;
+        margin-bottom: 20px;
+        border-collapse: collapse;
+        border: none;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 4px 8px 0px;
+        text-align: center;
+        color: white;
+        border: none;
+    }
+
+    th {
+        background-color: #333;
+        padding: 10px;
+
+    }
+
+    button:hover {
+        background-color: #e67e22;
+    }
+
+    #max_players_buttons button {
+        margin-right: 5px;
+        padding: 10px 20px;
+        background-color: rgba(120, 120, 120, 0.7);
+        color: white;
+        border: 1px solid transparent;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    #max_players_buttons button:hover {
+        background-color: rgba(100, 100, 100, 0.8);
+    }
+
+    #max_players_buttons button.active {
+        color: white;
+        border: 2px solid orange;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    #error_message {
+        color: #e74c3c;
+        font-size: 1.2rem;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    /* Dialog styles */
+    .dialog {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .dialog-content {
+        background-color: #fff;
+        padding: 20px 30px;
+        border-radius: 8px;
+        text-align: center;
+        min-width: 250px;
+        max-width: 80%;
+        color: #C1440E;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        animation: popIn 0.2s ease-in-out;
+        position: relative;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    @keyframes popIn {
+        0% { transform: scale(0.7); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            width: 95%;
+            padding: 20px;
+        }
+
+  
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container_simple">
+    <h1>Log Board Game Results</h1>
+    <form method="POST" action="/log" onsubmit="handleFormSubmit(event)">
+        <label for="date">Date:</label>
+        <input class='dateInput' type="date" name="date" required>
+
+        <label for="season">Season:</label>
+        <select name="season" required>
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+        </select>
+
+        <label for="game">Game Name:</label>
+        <select name="game" required>
+            <option value="Terraforming Mars">Terraforming Mars</option>
+        </select>
+
+        <label>Number of Players (1-5):</label>
+        <div id="max_players_buttons">
+            <button type="button" onclick="selectPlayerButton(this, 1)">1</button>
+            <button type="button" onclick="selectPlayerButton(this, 2)">2</button>
+            <button type="button" onclick="selectPlayerButton(this, 3)">3</button>
+            <button type="button" onclick="selectPlayerButton(this, 4)">4</button>
+            <button type="button" onclick="selectPlayerButton(this, 5)">5</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Points</th>
+                    <th>Game Score (Optional)</th>
+                </tr>
+            </thead>
+            <tbody id="player_table_body"></tbody>
+        </table>
+
+        <p id="error_message"></p>
+
+        <div class="button-container">
+            <button type="submit" id="submit_button">Save Result</button>
+        </div>
+    </form>
+
+    <!-- Dialog -->
+    <div id="dialog" class="dialog">
+        <div class="dialog-content">
+            <span class="close-btn" onclick="document.getElementById('dialog').style.display='none'">&times;</span>
+            <p id="dialog-message"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+const playerOptions = ["Alstrup", "Frederik", "Magnus", "Best", "Raschke", "MicrobeMorten"];
+
+function validateUniqueInputs() {
+    const playerSelects = document.querySelectorAll(".player-select");
+    const pointsSelects = document.querySelectorAll(".points-select");
+
+    const selectedPlayers = Array.from(playerSelects).map(select => select.value);
+    const selectedPoints = Array.from(pointsSelects).map(select => select.value);
+
+    const duplicatePlayers = selectedPlayers.filter((value, index, self) => value && self.indexOf(value) !== index);
+    const duplicatePoints = selectedPoints.filter((value, index, self) => value && self.indexOf(value) !== index);
+
+    const errorMessage = document.getElementById("error_message");
+
+    if (duplicatePlayers.length > 0 || duplicatePoints.length > 0) {
+        errorMessage.textContent = "Error: Duplicate player names or points are not allowed.";
+        document.getElementById("submit_button").disabled = true;
+    } else {
+        errorMessage.textContent = "";
+        document.getElementById("submit_button").disabled = false;
+    }
+}
+
+function handleFormSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    fetch('/log', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        showDialog(data.message);
+    })
+    .catch(() => showDialog("An error occurred. Please try again."));
+}
+
+function showDialog(message) {
+    const dialog = document.getElementById('dialog');
+    const dialogMessage = document.getElementById('dialog-message');
+    dialogMessage.textContent = message;
+    dialog.style.display = 'flex';
+    setTimeout(() => { dialog.style.display = 'none'; }, 5000);
+}
+
+// Close dialog when clicking outside content
+document.getElementById('dialog').addEventListener('click', e => {
+    if (e.target.id === 'dialog') e.target.style.display = 'none';
+});
+
+function selectPlayerButton(el, numPlayers) {
+    document.querySelectorAll('#max_players_buttons button').forEach(btn => btn.classList.remove('active'));
+    el.classList.add('active');
+    updatePlayerTable(numPlayers);
+}
+
+function updatePlayerTable(numPlayers) {
     const playerTable = document.getElementById("player_table_body");
-    playerTable.innerHTML = ""; 
+    playerTable.innerHTML = "";
 
-    for (let i = 0; i < maxPlayersInput; i++) {
+    for (let i = 0; i < numPlayers; i++) {
         const row = document.createElement("tr");
 
-        // Player select cell
+        // Player select
         const playerCell = document.createElement("td");
         const playerSelect = document.createElement("select");
         playerSelect.name = "player";
@@ -381,7 +278,7 @@ th {
         playerCell.appendChild(playerSelect);
         row.appendChild(playerCell);
 
-        // Points select cell
+        // Points select
         const pointsCell = document.createElement("td");
         const pointsSelect = document.createElement("select");
         pointsSelect.name = "points";
@@ -398,110 +295,33 @@ th {
         pointsCell.appendChild(pointsSelect);
         row.appendChild(pointsCell);
 
-        // Game score select cell (optional)
-        const gameScoreCell = document.createElement("td");
-        const gameScoreSelect = document.createElement("select");
-        gameScoreSelect.name = "game_score";
-
-        const defaultGameScore = document.createElement("option");
-        defaultGameScore.value = "";
-        defaultGameScore.textContent = "-- Optional --";
-        defaultGameScore.selected = true;
-        gameScoreSelect.appendChild(defaultGameScore);
+        // Game score select
+        const scoreCell = document.createElement("td");
+        const scoreSelect = document.createElement("select");
+        scoreSelect.name = "game_score";
+        const defaultScore = document.createElement("option");
+        defaultScore.value = "";
+        defaultScore.textContent = "-- Optional --";
+        defaultScore.selected = true;
+        scoreSelect.appendChild(defaultScore);
 
         for (let k = 40; k <= 150; k++) {
             const opt = document.createElement("option");
             opt.value = k;
             opt.textContent = k;
-            gameScoreSelect.appendChild(opt);
+            scoreSelect.appendChild(opt);
         }
-        gameScoreCell.appendChild(gameScoreSelect);
-        row.appendChild(gameScoreCell);
+        scoreCell.appendChild(scoreSelect);
+        row.appendChild(scoreCell);
 
         playerTable.appendChild(row);
     }
 }
-   // Call selectPlayerButton initially for button 4
-   window.onload = function() {
-    const fourthButton = document.querySelectorAll('#max_players_buttons button')[3]; // zero-based index
+
+// Initialize with 4 players active
+window.onload = () => {
+    const fourthButton = document.querySelectorAll('#max_players_buttons button')[3];
     selectPlayerButton(fourthButton, 4);
-  };
-    </script>
-</head>
-<body>
-    <div class="navbar">
-        <div class="navbar-buttons">
-            <a href="/plots">Plots</a>
-            <a href="/houseRules">House Rules</a>
-            <a href="/">Submit result</a>
-            <a href="/wheelOfNames">Spin the What</a>
-        </div>
-    </div>
-    
-<header>
-   <!-- Persistent audio player -->
-    <audio id="background-music" loop>
-        <source src="{{ url_for('static', filename='music/background_music.mp3') }}" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
-     
-    
-
-</header>
-
-  
-    
-<div class="container">
-    <h1>Log Board Game Results</h1>
-    <form method="POST" action="/log" onsubmit="handleFormSubmit(event)">
-        <label for="date">Date:</label>
-        <input type="date" name="date" required><br>
-
-        <label for="season">Season:</label>
-        <select name="season" required>
-          <option value="1">1</option>
-          <option value="2" selected>2</option>
-        </select><br>
-            
-        <div id="dialog" class="dialog">
-            <div class="dialog-content">
-                <span class="close-btn" onclick="document.getElementById('dialog').style.display = 'none'">&times;</span>
-                <p id="dialog-message"></p>  <!-- This is where the message will appear -->
-            </div>
-        </div>
-
-            <label for="game">Game Name:</label>
-            <select name="game" required>
-                <option value="Terraforming Mars">Terraforming Mars</option>
-            </select><br>
-
-            <label>Number of Players (1-5):</label><br>
-            <div id="max_players_buttons">
-                <button type="button" onclick="selectPlayerButton(this, 1)">1</button>
-                <button type="button" onclick="selectPlayerButton(this, 2)">2</button>
-                <button type="button" onclick="selectPlayerButton(this, 3)">3</button>
-                <button type="button" onclick="selectPlayerButton(this, 4)">4</button>
-                <button type="button" onclick="selectPlayerButton(this, 5)">5</button>
-              </div>
-              <br>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Points</th>
-                        <th>Game Score (Optional)</th>
-                    </tr>
-                </thead>
-                <tbody id="player_table_body"></tbody>
-            </table>
-
-            <p id="error_message"></p>
-            <div class="button-container">
-                <button type="submit" id="submit_button">Save Result</button>
-
-            
-        </form>
-    </div>
-</body>
-</html>
+};
+</script>
+{% endblock %}

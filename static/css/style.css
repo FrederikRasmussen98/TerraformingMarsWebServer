@@ -1,26 +1,209 @@
-/* Import a cool space/universe font from Google Fonts */
+/* Import Orbitron font */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
 
-/* Set body background to a dark, mars-inspired gradient */
+/* === Theme Variables === */
+:root {
+    /* General font */
+    --main-font: 'Orbitron', sans-serif;
+
+    /* Background */
+    --body-bg: url('/static/images/mars.jpg');
+    --body-bg-color: #f9f9f9;
+
+    /* Text shadows */
+    --text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.95);
+
+    /* Container */
+    --container-bg: rgba(50, 15, 15, 0.85); /* Mars default */
+    --container-radius: 15px;
+    --container-padding: 40px;
+    --container-margin-top: 80px;
+    --container-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    --container-text-color: #fff; /* Mars default, white text */
+
+    --h1-text-color: #ffa600; 
+    --h2-text-color: #ffa600; 
+    /* Buttons */
+    --button-bg: #e74c3c; /* Mars red */
+    --button-hover: #e67e22;
+
+    /* Navbar */
+    --navbar-bg: rgba(0,0,0,0.8);
+    --navbar-link-color: #ff7043;
+    --navbar-link-hover: #ffa07a;
+    --navbar-link-hover-shadow: 0 0 10px rgba(255,140,0,0.9);
+
+    /* Dialog */
+    --dialog-color: #C1440E;
+
+    /* Image container */
+    --image-container-size: 750px;
+}
+
+
+
+/* === Venus Theme Override === */
+body.venus-theme {
+  
+    --body-bg: url('/static/images/venus.jpg');
+    --body-bg-color: #fff5e6; /* soft Venus color */
+    --container-bg: rgba(94, 79, 60, 0.822);
+    --button-bg: #443d3a;
+    --button-hover: #635845;
+    --navbar-link-color: #af9e81;
+    --navbar-link-hover: #443d3a;
+    --navbar-link-hover-shadow: 0 0 0px rgba(255,200,150,0.0);
+    --container-text-color: #0f0604; /* Venus theme, dark text for light background */
+    --dialog-color: #d17f63;
+    --container-box-shadow: none;
+        --text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.05);
+    --h1-text-color: #af9e81; 
+    --h2-text-color: #af9e81; 
+}
+
+
+
+/* === Global Styles === */
+body {
+    background-image: var(--body-bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--body-bg-color);
+    font-family: var(--main-font);
+    margin: 0;
+    padding: 0;
+    text-shadow: var(--text-shadow);
+}
 
 #submit_button {
-    font-family: 'Orbitron', sans-serif;
+    font-family: var(--main-font);
 }
+
+.container_simple {
+    background: var(--container-bg);
+    color: var(--container-text-color); /* text color */
+    border-radius: var(--container-radius);
+    margin-top: var(--container-margin-top);
+    padding: var(--container-padding);
+    box-shadow: var(--container-box-shadow);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+   h1 {
+        font-size: 2.5rem;
+        text-align: center;
+        color: var(--h1-text-color);
+        margin-bottom: 20px;
+    }
+  
+h2 {
+    color: var(--h2-text-color);
+}
+
+   label {
+        font-weight: bold;
+        color: var(--h2-text-color);
+        display: block;
+        margin-bottom: 5px;
+    }
+    select, .dateInput {
+        width: 98%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        border: 1px solid var(--h1-text-color);
+        font-size: 1rem;
+    }
+
+
+    .dateInput {
+        width: 95%;
+    }
+
+.wheel-container a {
+    margin-bottom: 10px;
+    color: var(--h1-text-color);
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    text-shadow:
+       -2px -2px 0 #000,
+        2px -2px 0 #000,
+       -2px  2px 0 #000,
+        2px  2px 0 #000,
+        0px  0px 6px rgba(0,0,0,0.7);
+    letter-spacing: 1px;
+}
+
+.wheel-container a:hover,
+.wheel-container a:focus {
+    color: #ffa07a;
+    text-shadow: none;
+    outline: none;
+}
+
+.spin-link:hover {
+    background-color: #ac7612;  /* fill background on hover */
+    color: #1a1a1a;             /* dark text for contrast */
+    text-decoration: none;
+}
+
+button {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+button:hover {
+    background-color: var(--button-hover);
+}
+
+      .plot-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            border: 0px solid #ccc;
+            
+        }
+/* Navbar */
 .navbar {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
   padding: 15px 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--navbar-bg);
   position: fixed;
   top: 0;
   width: 100%;
   z-index: 1000;
 }
+        .plot-container, .stats-container, .containerImageColumn {
+        padding: 20px; /* Add some padding for better spacing */
+        border: none; /* Border color to match the theme */
+        border-radius: 8px; /* Optional: rounded corners */
+        display: flex;
+justify-content: flex-start;
+align-items: center;
+height: 100%;
+flex-direction: column;
+        
+        }
 
 .navbar-buttons a {
-  color: #ff7043;
+  color: var(--navbar-link-color);
   text-decoration: none;
   font-weight: 600;
   font-size: 1.1rem;
@@ -29,30 +212,40 @@
 }
 
 .navbar-buttons a:hover {
-  color: #ffa07a;
+  color: var(--navbar-link-hover);
+  text-shadow: var(--navbar-link-hover-shadow);
 }
 
+/* Dialog */
+.dialog-content {
+    color: var(--dialog-color);
+}
 
-@media (max-width: 768px) {
-  .navbar {
-    padding: 8px 10px;
-  }
-
-  .navbar-buttons {
-    flex-direction: row;
+/* Image container */
+#image-container {
+    width: var(--image-container-size);
+    height: var(--image-container-size);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
-  }
-
-  .navbar a {
-    font-size: 1rem;
-    padding: 4px 6px;
-  }
 }
-  
 
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
 
-.navbar a:hover {
-    color: #ffa07a;
-    text-shadow: 0 0 10px rgba(255, 140, 0, 0.9);
+#mute-btn {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 0 10px;
+    text-decoration: none;
 }

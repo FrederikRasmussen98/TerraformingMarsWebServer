@@ -3,7 +3,6 @@
 
 /* === Theme Variables === */
 :root {
-    /* General font */
     --main-font: 'Orbitron', sans-serif;
 
     /* Background */
@@ -14,17 +13,19 @@
     --text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.95);
 
     /* Container */
-    --container-bg: rgba(50, 15, 15, 0.85); /* Mars default */
+    --container-bg: rgba(50, 15, 15, 0.85);
     --container-radius: 15px;
     --container-padding: 40px;
     --container-margin-top: 80px;
     --container-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
-    --container-text-color: #fff; /* Mars default, white text */
+    --container-text-color: #fff;
 
+    /* Headings */
     --h1-text-color: #ffa600; 
-    --h2-text-color: #ffa600; 
+    --h2-text-color: #ffa600;
+
     /* Buttons */
-    --button-bg: #e74c3c; /* Mars red */
+    --button-bg: #e74c3c;
     --button-hover: #e67e22;
 
     /* Navbar */
@@ -37,31 +38,36 @@
     --dialog-color: #C1440E;
 
     /* Image container */
-    --image-container-size: 750px;
+    --image-container-size: 95%;
+
+    /* Table defaults */
+    --table-text-color: var(--container-text-color);
+    --table-border-color: #a52a2a;
+    --table-font-family: 'Arial', sans-serif;
 }
-
-
 
 /* === Venus Theme Override === */
 body.venus-theme {
-  
     --body-bg: url('/static/images/venus.jpg');
-    --body-bg-color: #fff5e6; /* soft Venus color */
+    --body-bg-color: #fff5e6;
     --container-bg: rgba(94, 79, 60, 0.822);
     --button-bg: #443d3a;
     --button-hover: #635845;
     --navbar-link-color: #af9e81;
     --navbar-link-hover: #443d3a;
-    --navbar-link-hover-shadow: 0 0 0px rgba(255,200,150,0.0);
-    --container-text-color: #0f0604; /* Venus theme, dark text for light background */
+    --navbar-link-hover-shadow: 0 0 0px rgba(255,200,150,0);
+    --container-text-color: #0f0604;
     --dialog-color: #d17f63;
     --container-box-shadow: none;
-        --text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.05);
-    --h1-text-color: #af9e81; 
-    --h2-text-color: #af9e81; 
+    --text-shadow: 10px 10px 10px rgba(0, 0, 0, 0.05);
+    --h1-text-color: #af9e81;
+    --h2-text-color: #af9e81;
+
+    /* Table overrides */
+    --table-text-color: var(--container-text-color);
+    --table-border-color: #6b4f3d;
+    --table-font-family: 'Arial', sans-serif;
 }
-
-
 
 /* === Global Styles === */
 body {
@@ -82,47 +88,58 @@ body {
 
 .container_simple {
     background: var(--container-bg);
-    color: var(--container-text-color); /* text color */
+    color: var(--container-text-color);
     border-radius: var(--container-radius);
-    margin-top: var(--container-margin-top);
+    margin: var(--container-margin-top) auto 0 auto;
     padding: var(--container-padding);
     box-shadow: var(--container-box-shadow);
     max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
-   h1 {
-        font-size: 2.5rem;
-        text-align: center;
-        color: var(--h1-text-color);
-        margin-bottom: 20px;
-    }
-  
+h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    color: var(--h1-text-color);
+    margin-bottom: 20px;
+}
+
 h2 {
     color: var(--h2-text-color);
 }
-
-   label {
-        font-weight: bold;
-        color: var(--h2-text-color);
-        display: block;
-        margin-bottom: 5px;
-    }
-    select, .dateInput {
-        width: 98%;
-        padding: 10px;
-        margin-bottom: 20px;
-        border-radius: 5px;
-        border: 1px solid var(--h1-text-color);
-        font-size: 1rem;
-    }
+/* Season select dropdown style */
+.season-select {
+    font-size: 1rem;      /* Font size */
+    padding: 5px;         /* Inner spacing */
+    border-radius: 5px;   /* Rounded corners */
+    width: 5%;            /* Width of the select */
+    border: 1px solid #ccc; /* Optional: border color */
+    background-color: #fff; /* Optional: background color */
+    color: #000;          /* Text color */
+}
 
 
-    .dateInput {
-        width: 95%;
-    }
+label {
+    font-weight: bold;
+    color: var(--h2-text-color);
+    display: block;
+    margin-bottom: 5px;
+}
 
+select,
+.dateInput {
+    width: 98%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid var(--h1-text-color);
+    font-size: 1rem;
+}
+
+.dateInput {
+    width: 95%;
+}
+
+/* Links */
 .wheel-container a {
     margin-bottom: 10px;
     color: var(--h1-text-color);
@@ -132,11 +149,11 @@ h2 {
     text-align: center;
     display: block;
     text-shadow:
-       -2px -2px 0 #000,
-        2px -2px 0 #000,
-       -2px  2px 0 #000,
-        2px  2px 0 #000,
-        0px  0px 6px rgba(0,0,0,0.7);
+        -2px -2px 0 #000,
+         2px -2px 0 #000,
+        -2px  2px 0 #000,
+         2px  2px 0 #000,
+         0px  0px 6px rgba(0,0,0,0.7);
     letter-spacing: 1px;
 }
 
@@ -148,12 +165,13 @@ h2 {
 }
 
 .spin-link:hover {
-    background-color: #ac7612;  /* fill background on hover */
-    color: #1a1a1a;             /* dark text for contrast */
+    background-color: #ac7612;
+    color: #1a1a1a;
     text-decoration: none;
 }
 
-button {
+/* Buttons */
+button, #mute-btn {
     background-color: var(--button-bg);
     color: white;
     padding: 10px 20px;
@@ -165,55 +183,36 @@ button {
     text-decoration: none;
 }
 
-button:hover {
+button:hover, #mute-btn:hover {
     background-color: var(--button-hover);
 }
 
-      .plot-container img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            border: 0px solid #ccc;
-            
-        }
 /* Navbar */
 .navbar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  padding: 15px 0;
-  background: var(--navbar-bg);
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 0;
+    background: var(--navbar-bg);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
 }
-        .plot-container, .stats-container, .containerImageColumn {
-        padding: 20px; /* Add some padding for better spacing */
-        border: none; /* Border color to match the theme */
-        border-radius: 8px; /* Optional: rounded corners */
-        display: flex;
-justify-content: flex-start;
-align-items: center;
-height: 100%;
-flex-direction: column;
-        
-        }
 
 .navbar-buttons a {
-  color: var(--navbar-link-color);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 5px 10px;
-  transition: color 0.3s ease;
+    color: var(--navbar-link-color);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 5px 10px;
+    transition: color 0.3s ease;
 }
 
 .navbar-buttons a:hover {
-  color: var(--navbar-link-hover);
-  text-shadow: var(--navbar-link-hover-shadow);
+    color: var(--navbar-link-hover);
+    text-shadow: var(--navbar-link-hover-shadow);
 }
 
 /* Dialog */
@@ -238,14 +237,174 @@ flex-direction: column;
     display: block;
 }
 
-#mute-btn {
+/* Grid layout */
+.container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    align-items: start;
+    justify-items: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.plot-container,
+.stats-container,
+.containerImageColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    min-width: 0;
+    height: auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.plot-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    border: 0;
+}
+
+/* === Tables === */
+table {
+    width: 90%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+table th,
+table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid var(--table-border-color);
+    color: var(--table-text-color);
+    font-family: var(--table-font-family);
+    cursor: pointer;
+    background-color: var(--container-bg);
+}
+
+table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive table */
+@media (max-width: 600px) {
+    table th,
+    table td {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Form Styling */
+#player-selection-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#player-selection-form select,
+#player-selection-form input,
+#player-selection-form button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid var(--h1-text-color);
+    box-sizing: border-box;
+}
+
+#player-selection-form button {
     background-color: var(--button-bg);
     color: white;
-    padding: 10px 20px;
     border: none;
-    border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#player-selection-form button:hover {
+    background-color: var(--button-hover);
+}
+
+/* Media Queries for Responsive Layout */
+@media (max-width: 1024px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        grid-template-columns: 1fr;
+        padding: 5px;
+    }
+
+    .container_simple {
+        padding: 20px;
+        margin-top: 40px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2, label {
+        font-size: 1rem;
+    }
+
+    select, .dateInput {
+        width: 100%;
+    }
+
+    button, #mute-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        margin: 5px 0;
+    }
+
+    #image-container {
+        width: 100%;
+        height: auto;
+    }
+
+    .plot-container img {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Navbar wrap */
+.navbar {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.navbar-buttons a {
     font-size: 1rem;
-    margin: 0 10px;
-    text-decoration: none;
+}
+
+button, .wheel-container a, .spin-link {
+    padding: 12px 20px;
+    font-size: 1rem;
 }

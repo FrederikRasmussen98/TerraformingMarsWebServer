@@ -67,222 +67,174 @@ def logout():
 
 @app.route('/generate_plot', methods=['GET'])
 def generate_plot():
-    # Get the players from the query parameters (passed via the URL)
+    # Get the players from query parameters
     selected_players = request.args.getlist('players')
-    season = int(request.args.get('season', 1))  # Default to season 1 if not provided
+    
+    # Parse season safely
+    season_param = request.args.get('season', '1')
+    try:
+        season = int(season_param)
+    except ValueError:
+        season = 1  # default to season 1 if invalid
 
-    # Load the results from the JSON file
+    # Load game data
     with open('results.json', 'r') as file:
         game_data = json.load(file)
+
+    # Filter by season
     game_data = [entry for entry in game_data if entry.get('season', 1) == season]
-    print("SEASON")
-    print(season)
-    # Extract all unique players and dates
+
+    # Extract unique players and dates
     players = set(player for entry in game_data for player in entry['players'])
     dates = sorted(set(entry['date'] for entry in game_data))
-    
-    # If specific players are selected, filter the data
+
+    # Filter players if specified
     if selected_players:
         players = [player for player in players if player in selected_players]
 
-    
-    # Initialize player scores dictionary with 0 for each player on each date
-    player_scores = {player: [0] * len(dates) for player in players}
-    player_game_points = {player: [0] * len(dates) for player in players}
-    player_game_scores = {player: [None] * len(dates) for player in players}
-    # Initialize player wins dictionary to track the number of wins
+    # Initialize dictionaries
+    player_scores = {player: [0]*len(dates) for player in players}
+    player_game_points = {player: [0]*len(dates) for player in players}
+    player_game_scores = {player: [None]*len(dates) for player in players}
     player_wins = {player: 0 for player in players}
     player_points = {player: 0 for player in players}
-    # Initialize player game count dictionary
     player_games = {player: 0 for player in players}
-    
-    # Map each date to its index in the dates list
+
     date_index_map = {date: idx for idx, date in enumerate(dates)}
-    
-    # Populate player scores and count total wins and total games played
+
+    # Populate scores and stats
     for entry in game_data:
         date_idx = date_index_map[entry['date']]
         num_players = len(entry['players'])
         for idx, player in enumerate(entry['players']):
-            if player not in players:  # Skip if player is not in selected list
+            if player not in players:
                 continue
-            score = int(entry['points'][idx])  # Convert score to integer
+            score = int(entry['points'][idx])
             player_scores[player][date_idx] = score
-            game_score = entry.get('game_scores', [None] * num_players)[idx]  # Use None if no game_score exists
-        
-            # Store the game score for the player on that date
+            game_score = entry.get('game_scores', [None]*num_players)[idx]
             player_game_scores[player][date_idx] = game_score
-            # Check if the player has won (score equals number of players)
             if score == num_players:
                 player_wins[player] += 1
-            
-            
-            # Count the number of games this player has played
             player_games[player] += 1
-    
+
+    # Accumulate scores and determine current winner
     currentWinner = ""
     currentWinnerScore = 0
-    # Accumulate scores over time for each player
     for player in player_scores:
-        # Create a copy of the original scores
         player_game_points[player] = list(player_scores[player])
-        
-        # Update winner info based on final game score
         if player_game_points[player][-1] > currentWinnerScore:
             currentWinner = player
             currentWinnerScore = player_game_points[player][-1]
-        
-        # Accumulate scores over time
         for i in range(1, len(player_scores[player])):
-            player_scores[player][i] += player_scores[player][i - 1]
-        
-        # Get final accumulated score
+            player_scores[player][i] += player_scores[player][i-1]
         player_points[player] = player_scores[player][-1]
-    print("WINNER:")
-    print(currentWinner)
-    # Calculate player statistics
+
+    # Player stats
     player_stats = {}
     for player in players:
-        scores = player_scores[player]
-        # Get the game scores for the player (game_scores)
         game_scores = player_game_scores[player]
-        #print(scores)
-        #print(np.mean(scores))
-        print()
-        print(player)
-        print(player_wins[player])
-        
+        filtered_points = [x for x in player_game_points[player] if x != 0]
         player_stats[player] = {
-            'mean_points': np.mean([x for x in player_game_points[player] if x != 0]) if player_game_points[player] else 0,
-            'std_points': np.std([x for x in player_game_points[player] if x != 0]) if len([x for x in player_game_points[player]  if x != 0]) > 1 else 0,
-            # For game scores (new)
+            'mean_points': np.mean(filtered_points) if filtered_points else 0,
+            'std_points': np.std(filtered_points) if len(filtered_points) > 1 else 0,
             'max_game_score': max([score for score in game_scores if score is not None], default=0),
             'min_game_score': min([score for score in game_scores if score is not None], default=0),
-            'total_games': player_games[player],  # Total games played by the player
+            'total_games': player_games[player],
             'total_wins': player_wins[player],
             'total_points': player_points[player],
         }
-       
 
-    # Define player colors
-    player_colors = {
-        "Frederik": "green",
-        "Best": "blue",
-        "Magnus": "gold",
-        "Raschke": "black",
-        "Alstrup": "red",
-        "MicrobeMorten": "gray"
-    }
+    # Define colors per season
+    if season == 1:  # Mars colors
+        bg_color = (139/255, 69/255, 19/255, 0.4)  # Mars-like
+        player_colors = {
+            "Frederik": "green",
+            "Best": "blue",
+            "Magnus": "gold",
+            "Raschke": "black",
+            "Alstrup": "red",
+            "MicrobeMorten": "gray"
+        }
+        tick_color = 'white'
+    elif season == 2:  # Mars colors:  # Venus colors
+        bg_color = (255/255, 245/255, 230/255, 0.4)  # soft Venus-like
+        player_colors = {
+            "Frederik": "green",
+            "Best": "blue",
+            "Magnus": "gold",
+            "Raschke": "black",
+            "Alstrup": "red",
+            "MicrobeMorten": "gray"
+        }
+        tick_color = 'black'
 
-    # Generate the plot
+
+    # Plot 1: Accumulated Scores
     fig, ax = plt.subplots(figsize=(10, 5), dpi=220)
-
-    # Set background color to Mars-like brown with more transparency (alpha=0.5)
-    fig.patch.set_facecolor((139/255, 69/255, 19/255, 0.4))  # Reduce opacity to 50%
-    ax.set_facecolor((139/255, 69/255, 19/255, 0.4))  # Reduce opacity to 50%
-
-    # Set the spines (axes borders) to white and transparent (alpha=0.5)
+    fig.patch.set_facecolor(bg_color)
+    ax.set_facecolor(bg_color)
     for spine in ax.spines.values():
         spine.set_edgecolor('white')
-        spine.set_linewidth(1.5)  # Optional: adjust spine thickness
-        spine.set_alpha(0.5)  # Set spine transparency
-
-    # Set the ticks (axis marks) to white
-    ax.tick_params(axis='both', which='both', colors='white')
-    # Rotate x-axis labels by 45 degrees
+        spine.set_linewidth(1.5)
+        spine.set_alpha(0.5)
+    ax.tick_params(axis='both', which='both', colors=tick_color)
     ax.set_xticklabels(dates, rotation=45)
+    ax.set_xlabel('Date', color=tick_color, alpha=0.7)
+    ax.set_ylabel('Accumulated Score', color=tick_color, alpha=0.7)
 
-    # Set the labels for axes to white with more transparency
-    ax.set_xlabel('Date', color='white', alpha=0.7)
-    ax.set_ylabel('Accumulated Score', color='white', alpha=0.7)
+    
 
-    # Plot each player's scores with color mapping and more transparency (alpha=0.5)
     for player, scores in player_scores.items():
-        ax.step(dates, scores, marker='o', label=player, color=player_colors.get(player, 'gray'), alpha=0.7, where ='post')  # Set alpha to 0.5 for more transparency
+        ax.step(dates, scores, marker='o', label=player, color=player_colors.get(player, 'gray'), alpha=0.7, where='post')
 
-    # Set title and make it white with more transparency
-    # ax.set_title('Accumulated Game Scores Over Time', color='white', alpha=0.7)
-
-    # Adjust the legend and make its background transparent
     legend = ax.legend()
     for text in legend.get_texts():
-        text.set_color('white')  # Set legend text color to white
-    
-    # Adjust the layout to prevent clipping of text
+        text.set_color('white')
     plt.tight_layout()
-    # Make legend background transparent
-    legend.get_frame().set_edgecolor('none')  # Removes the border
-    legend.get_frame().set_facecolor('none')  # Makes the background transparent
+    legend.get_frame().set_edgecolor('none')
+    legend.get_frame().set_facecolor('none')
 
-    # Save the plot to a BytesIO object
     img_stream = io.BytesIO()
     fig.savefig(img_stream, format='png')
     img_stream.seek(0)
-
-    # Encode the image as base64
     img_base64 = base64.b64encode(img_stream.read()).decode('utf-8')
 
-
-
-
-    # Example statistics
-    stats = {
-        'Total Wins': player_wins,  # Add total wins for each player
-        'Total Points': player_points,
-        'Player Stats': player_stats,  # Include player-specific stats
-        'Current Winner': currentWinner
-    }
-    
- # === Plot 2 (New Plot) ===
+    # Plot 2: Game Points
     fig2, ax2 = plt.subplots(figsize=(10, 5), dpi=220)
-    
-      # Set background color to Mars-like brown with more transparency (alpha=0.5)
-    fig2.patch.set_facecolor((139/255, 69/255, 19/255, 0.4))  # Reduce opacity to 50%
-    ax2.set_facecolor((139/255, 69/255, 19/255, 0.4))  # Reduce opacity to 50%
-
-
-
-    # Set the spines (axes borders) to white and transparent (alpha=0.5)
+    fig2.patch.set_facecolor(bg_color)
+    ax2.set_facecolor(bg_color)
     for spine in ax2.spines.values():
         spine.set_edgecolor('white')
-        spine.set_linewidth(1.5)  # Optional: adjust spine thickness
-        spine.set_alpha(0.5)  # Set spine transparency
-    # Set the ticks (axis marks) to white
-    ax2.tick_params(axis='both', which='both', colors='white')
-    # Rotate x-axis labels by 45 degrees
+        spine.set_linewidth(1.5)
+        spine.set_alpha(0.5)
+    ax2.tick_params(axis='both', which='both', colors=tick_color)
     ax2.set_xticklabels(dates, rotation=45)
-    
-    ax2.set_xlabel('Date', color='white', alpha=0.7)
-    ax2.set_ylabel('Points', color='white', alpha=0.7)
-    
-    
+    ax2.set_xlabel('Date', color=tick_color, alpha=0.7)
+    ax2.set_ylabel('Points', color=tick_color, alpha=0.7)
+
     for player, scores in player_game_points.items():
-        ax2.plot(dates, scores, marker='o', label=player, color=player_colors.get(player, 'gray'), alpha=0.7)  # Set alpha to 0.5 for more transparency
+        ax2.plot(dates, scores, marker='o', label=player, color=player_colors.get(player, 'gray'), alpha=0.7)
 
-
-    # Adjust the legend and make its background transparent
-    legend2 = ax2.legend()
-    for text in legend2.get_texts():
-        text.set_color('white')  # Set legend text color to white
-        
-    # Adjust the layout to prevent clipping of text
     plt.tight_layout()
-    # Make legend background transparent
-    legend2.get_frame().set_edgecolor('none')  # Removes the border
-    legend2.get_frame().set_facecolor('none')  # Makes the background transparent
 
     img_stream2 = io.BytesIO()
     fig2.savefig(img_stream2, format='png')
     img_stream2.seek(0)
     img_base64_2 = base64.b64encode(img_stream2.read()).decode('utf-8')
 
-    # Return the plot and statistics as a JSON response
+    # Prepare stats
+    stats = {
+        'Total Wins': player_wins,
+        'Total Points': player_points,
+        'Player Stats': player_stats,
+        'Current Winner': currentWinner
+    }
+
     return jsonify({
         'plot_url': img_base64,
-         'plot2_url': img_base64_2,
+        'plot2_url': img_base64_2,
         'stats': stats
     })
-
 
 
 @app.route('/plots', methods=['GET'])

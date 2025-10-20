@@ -16,10 +16,60 @@
             }
         }
     </style>
+
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const seasonSelect = document.getElementById("season-select");
+    
+    // Get saved season from localStorage or default to 1
+    const savedSeason = localStorage.getItem("selectedSeason") || "1";
+
+    // Apply theme based on saved season
+    if (savedSeason === "2") {
+        document.body.classList.add("venus-theme");
+    } else {
+        document.body.classList.remove("venus-theme");
+    }
+
+    // If the select exists on this page, set its value
+    if (seasonSelect) {
+        seasonSelect.value = savedSeason;
+    }
+});
+
+// Function to handle season changes
+function handlePlayerSelection() {
+    const selectedPlayers = Array.from(document.querySelectorAll('input[name="players"]:checked'))
+        .map(input => input.value);
+
+    const seasonSelect = document.getElementById("season-select");
+    const season = seasonSelect ? seasonSelect.value : "1";
+
+    // Update the title based on season
+    const title = document.getElementById("current-winner-title");
+    title.textContent = (season === "2") ? "CURRENT SON OF VENUS" : "CURRENT SON OF MARS";
+
+    // Save season in localStorage
+    localStorage.setItem("selectedSeason", season);
+
+    // Apply or remove Venus theme
+    if (season === "2") {
+        document.body.classList.add("venus-theme");
+    } else {
+        document.body.classList.remove("venus-theme");
+    }
+
+    // Call your existing function to fetch plots
+    if (typeof fetchPlotData === "function") {
+        fetchPlotData(selectedPlayers, season);
+    }
+}
+</script>
+
 </head>
 
 <!-- ✅ Apply Venus theme by default; remove class for Mars -->
-<body class="venus-theme">
+<body >
 
     <!-- ✅ Common Navigation Bar -->
     {% include 'navbar.html' %}
@@ -37,6 +87,18 @@
 
     <script src="{{ url_for('static', filename='main.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+    <!-- Your other HTML content -->
+
+<!-- Scripts -->
+<script>
+  
+</script>
+
+</body>
+</html>
 
 </body>
 </html>

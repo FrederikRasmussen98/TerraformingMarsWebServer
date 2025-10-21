@@ -4,7 +4,6 @@
 
 {% block head %}
 <style>
-/* Page-specific styles for wheels */
 body {
     color: white;
 }
@@ -14,10 +13,10 @@ main {
     padding-bottom: 30px;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 40px;
 }
 
 .wheel-container {
@@ -26,26 +25,69 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-iframe {
-    border: none;
-    width: 100%;
-    max-width: 350px;
-    height: 600px;
+    background: #222;
+    padding: 15px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-    background: #2a0d0d;
-    overflow: hidden;
-    transition: box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    position: relative;
 }
 
-iframe:focus {
-    outline: 3px solid #ff7043;
-    box-shadow: 0 0 20px #ff7043;
+.wheel-container input {
+    width: 90%;
+    padding: 6px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    border: none;
+    font-size: 14px;
 }
 
+.wheel-container button {
+    margin: 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    background: #ff7043;
+    color: white;
+    font-weight: bold;
+}
 
+canvas {
+    margin: 10px 0;
+    border: 3px solid #555;
+    border-radius: 50%;
+    background: url('/static/images/mars.jpg') no-repeat center center;
+    background-size: cover;
+}
+
+/* Dialog directly on wheel */
+.winnerDialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(51,51,51,0.95);
+    padding: 20px 30px;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+    z-index: 10;
+}
+
+.winnerDialog button {
+    margin: 5px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    background: #ff7043;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
 </style>
 {% endblock %}
 
@@ -54,43 +96,225 @@ iframe:focus {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const wheels = [
-      {
-        label: "Spin the Map",
-        url: "https://wheelofnames.com/?entries=Lyserød,Lyseorange,Mørkeorange,Grøn,Blå,Lilla måtte,Blå måtte",
-      },
-      {
-        label: "Spin the Names",
-        url: "https://wheelofnames.com/?entries=Kongen,Gaystrup,Magnus,Microben,Best",
-      },
-      {
-        label: "Spin the Moons",
-        url: "https://wheelofnames.com/?entries=TITAN,GANYMEDE,MIRANDA,PLUTO,ENCELADUS,TRITON,CERES,EUROPA,IO,CALLISTO,LUNA",
-      },
+    const wheelsData = [
+        {
+            label: "Spin the Map",
+            entries: ["Lyserød","Lyseorange","Mørkeorange","Grøn","Blå","Lilla måtte","Blå måtte"],
+            colors: {
+                "Lyserød": "pink",
+                "Lyseorange": "orange",
+                "Mørkeorange": "darkorange",
+                "Grøn": "green",
+                "Blå": "blue",
+                "Lilla måtte": "purple",
+                "Blå måtte": "skyblue"
+            }
+        },
+        {
+            label: "Spin the Names",
+            entries: ["Kongen","Gaystrup","Magnus","Microben","Best"],
+            colors: {
+                "Kongen": "green",
+                "Gaystrup": "red",
+                "Magnus": "yellow",
+                "Microben": "gray",
+                "Best": "blue"
+            }
+        },
+        {
+            label: "Spin the Moons",
+            entries: ["TITAN","GANYMEDE","MIRANDA","PLUTO","ENCELADUS","TRITON","CERES","EUROPA","IO","CALLISTO","LUNA"]
+        }
     ];
 
     const wheelsContainer = document.getElementById('wheels');
 
-    wheels.forEach(({ url, label }) => {
+    // Cubic easing out for smoother deceleration
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    wheelsData.forEach((wheelData) => {
         const container = document.createElement('section');
         container.className = 'wheel-container';
 
-        const iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.scrolling = 'no';
-        iframe.title = label;
-        iframe.allowFullscreen = true;
+        const title = document.createElement('h3');
+        title.textContent = wheelData.label;
 
-        const link = document.createElement('a');
-        link.href = url;
-        link.textContent = label;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.setAttribute('aria-label', `Open ${label} in new tab`);
+        const input = document.createElement('input');
+        input.value = wheelData.entries.join(',');
 
-        container.appendChild(link);
-        container.appendChild(iframe);
+        const canvas = document.createElement('canvas');
+        canvas.width = 350;
+        canvas.height = 350;
+
+        const spinBtn = document.createElement('button');
+        spinBtn.textContent = "Spin";
+
+        container.appendChild(title);
+        container.appendChild(input);
+        container.appendChild(spinBtn);
+        container.appendChild(canvas);
+
+        // For Spin the Map: last played map
+        let lastPlayedDiv, markBtn;
+        if (wheelData.label === "Spin the Map") {
+            lastPlayedDiv = document.createElement('div');
+            lastPlayedDiv.style.marginTop = "8px";
+            lastPlayedDiv.style.fontWeight = "bold";
+            lastPlayedDiv.style.fontSize = "14px";
+            container.appendChild(lastPlayedDiv);
+
+            const storedMap = localStorage.getItem('lastPlayedMap');
+            if (storedMap) lastPlayedDiv.textContent = `Last played map: ${storedMap}`;
+
+            markBtn = document.createElement('button');
+            markBtn.textContent = "Mark as last played map";
+            markBtn.style.display = "none";
+            container.appendChild(markBtn);
+
+            markBtn.addEventListener('click', () => {
+                if (wheel.names.length === 1) {
+                    localStorage.setItem('lastPlayedMap', wheel.names[0]);
+                    lastPlayedDiv.textContent = `Last played map: ${wheel.names[0]}`;
+                    markBtn.style.display = "none";
+                }
+            });
+        }
+
         wheelsContainer.appendChild(container);
+
+        const ctx = canvas.getContext("2d");
+
+        const wheel = {
+            names: [...wheelData.entries],
+            colors: wheelData.colors || {},
+            startAngle: 0,
+            spinning: false,
+            winningIndex: null
+        };
+
+        function drawWheel() {
+            const outsideRadius = 150;
+            const textRadius = 110;
+            const insideRadius = 50;
+            const arc = Math.PI * 2 / wheel.names.length;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < wheel.names.length; i++) {
+                const angle = wheel.startAngle + i * arc;
+                const color = wheel.colors[wheel.names[i]] || `hsl(${i * 360 / wheel.names.length}, 70%, 60%)`;
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(canvas.width/2, canvas.height/2, outsideRadius, angle, angle + arc, false);
+                ctx.arc(canvas.width/2, canvas.height/2, insideRadius, angle + arc, angle, true);
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = "#000";
+                ctx.font = "bold 16px Arial";
+                ctx.translate(
+                    canvas.width/2 + Math.cos(angle + arc/2) * textRadius,
+                    canvas.height/2 + Math.sin(angle + arc/2) * textRadius
+                );
+                ctx.rotate(angle + arc/2 + Math.PI/2);
+                ctx.fillText(wheel.names[i], -ctx.measureText(wheel.names[i]).width/2, 0);
+                ctx.restore();
+            }
+
+            ctx.fillStyle = "red";
+            ctx.beginPath();
+            ctx.moveTo(canvas.width/2 - 10, canvas.height/2 - (outsideRadius + 20));
+            ctx.lineTo(canvas.width/2 + 10, canvas.height/2 - (outsideRadius + 20));
+            ctx.lineTo(canvas.width/2, canvas.height/2 - (outsideRadius - 5));
+            ctx.fill();
+        }
+
+        function startWheel() {
+            const inputVal = input.value;
+            wheel.names = inputVal.split(',').map(n => n.trim()).filter(n => n !== "");
+            if (wheel.names.length === 0) wheel.names.push("Winner");
+            drawWheel();
+            if (wheelData.label === "Spin the Map") updateMarkButton();
+        }
+
+        // Load audio
+const wooAudio = new Audio('/static/music/WooooSoundEffect.mp3');
+let wooPlayed = false;
+
+function spinWheel() {
+    if (wheel.spinning || wheel.names.length === 0) return;
+    wheel.spinning = true;
+    wooPlayed = false;
+
+    const spinDuration = Math.random() * 5 + 5; // 5–10s
+    const startTime = performance.now();
+    const totalRotation = Math.random() * 2 * Math.PI + (Math.floor(Math.random() * 5)+5) * 2 * Math.PI;
+
+    function animateSpin(timestamp) {
+        const elapsed = (timestamp - startTime)/1000;
+        let t = Math.min(elapsed / spinDuration, 1);
+        const easedT = easeOutCubic(t);
+
+        wheel.startAngle = easedT * totalRotation;
+        drawWheel();
+
+        // Play woo sound 0.3 seconds before stopping
+        if (!wooPlayed && spinDuration - elapsed <= 0.3) {
+            wooAudio.play();
+            wooPlayed = true;
+        }
+
+        if(t < 1) {
+            requestAnimationFrame(animateSpin);
+        } else {
+            wheel.spinning = false;
+            const degrees = (wheel.startAngle * 180 / Math.PI + 90) % 360;
+            const arcd = 360 / wheel.names.length;
+            wheel.winningIndex = Math.floor((360 - degrees) / arcd) % wheel.names.length;
+            drawWheel();
+            showWinnerDialog(wheel, container);
+            if (wheelData.label === "Spin the Map") updateMarkButton();
+        }
+    }
+
+    requestAnimationFrame(animateSpin);
+}
+
+
+        function showWinnerDialog(wheelObj, parent) {
+            const dialog = document.createElement('div');
+            dialog.className = "winnerDialog";
+            dialog.innerHTML = `
+                <div>${wheelObj.names[wheelObj.winningIndex]}</div>
+                <button class="removeBtn">Remove Winner</button>
+                <button class="closeBtn">Close</button>
+            `;
+            parent.appendChild(dialog);
+
+            dialog.querySelector('.removeBtn').onclick = () => {
+                wheelObj.names.splice(wheelObj.winningIndex, 1);
+                input.value = wheelObj.names.join(',');
+                wheelObj.winningIndex = null;
+                startWheel();
+                dialog.remove();
+            };
+
+            dialog.querySelector('.closeBtn').onclick = () => {
+                dialog.remove();
+            };
+        }
+
+        function updateMarkButton() {
+            if (wheel.names.length === 1) markBtn.style.display = "inline-block";
+            else markBtn.style.display = "none";
+        }
+
+        input.addEventListener('change', startWheel);
+        spinBtn.addEventListener('click', spinWheel);
+
+        startWheel();
     });
 });
 </script>

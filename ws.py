@@ -255,7 +255,6 @@ def log_result():
 
         points = data.getlist("points")[:num_players]
         game_scores = data.getlist("game_score")[:num_players]
-
         game_scores = [int(score) if score is not None and score != '' else None for score in game_scores]
 
         season_value = data.get("season")
@@ -277,13 +276,47 @@ def log_result():
         with open(DATA_FILE, "w") as file:
             json.dump(results, file, indent=4)
 
+        # ======= NEW: update corps_left =======
+        if os.path.exists("corps_left.json"):
+            with open("corps_left.json", "r") as f:
+                corps_data = json.load(f)
+            if corps_data.get("fearlessDraftOn", False):
+                corps_data["corpsLeft"] = max(0, corps_data.get("corpsLeft", 0) - num_players)
+                with open("corps_left.json", "w") as f:
+                    json.dump(corps_data, f, indent=4)
+        # =======================================
+
         return jsonify({"message": "Result saved!"}), 200
 
     except Exception as e:
         print("Error while saving result:", e)
         return jsonify({"message": "Failed to save result"}), 500
+@app.route('/get_corps_status')
+def get_corps_status():
+    if os.path.exists("corps_left.json"):
+        with open("corps_left.json", "r") as f:
+            data = json.load(f)
+    else:
+        data = {"fearlessDraftOn": False, "corpsLeft": 0}
+    return jsonify(data)
+@app.route("/adjust_corps", methods=["POST"])
+def adjust_corps():
+    try:
+        data = request.json
+        if os.path.exists("corps_left.json"):
+            with open("corps_left.json", "r") as f:
+                corps_data = json.load(f)
+        else:
+            corps_data = {"fearlessDraftOn": True, "corpsLeft": 0}
 
+        corps_data["corpsLeft"] = max(0, int(data.get("corpsLeft", corps_data.get("corpsLeft", 0))))
 
+        with open("corps_left.json", "w") as f:
+            json.dump(corps_data, f, indent=4)
+
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @app.route('/get_results', methods=['GET'])

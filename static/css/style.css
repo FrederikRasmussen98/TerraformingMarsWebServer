@@ -408,3 +408,35 @@ button, .wheel-container a, .spin-link {
     padding: 12px 20px;
     font-size: 1rem;
 }
+/* === Fearless Counter === */
+.fearless-counter {
+    position: fixed;
+    bottom: 15px;
+    right: 25px;
+    background: linear-gradient(135deg, #3b0a0a, #8b0000);
+    border: 2px solid #ffcc00;
+    color: #ffd700;
+    font-family: var(--main-font);
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    z-index: 3000;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.fearless-counter:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+}
+
+/* Venus theme override */
+body.venus-theme .fearless-counter {
+    background: linear-gradient(135deg, #d3b182, #b58b58);
+    border-color: #8b6e4b;
+    color: #4b2e05;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+}

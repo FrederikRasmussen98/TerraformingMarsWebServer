@@ -1,6 +1,5 @@
 <!-- templates/navbar.html -->
 <div class="navbar">
-    <!-- Left/center links -->
     <div class="navbar-buttons">
         <a href="/plots">Plots</a>
         <a href="/houseRules">House Rules</a>
@@ -8,9 +7,78 @@
         <a href="/wheelOfNames">Spin the What</a>
     </div>
 
-    <!-- Right-aligned volume control -->
     <div class="volume-control">
+     
         <button id="mute-btn">🔊</button>
         <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
     </div>
+
+<div id="fearless-counter" class="fearless-counter" style="display:none;">
+    🏢 Corps left: <span id="corps-left">--</span>
+    <div id="corps-edit" style="display:none; margin-top:5px;">
+        <button id="corps-plus">+</button>
+        <button id="corps-minus">-</button>
+        <button id="corps-done">✔</button>
+    </div>
 </div>
+</div>
+
+<script>
+let editMode = false;
+const counter = document.getElementById("fearless-counter");
+const corpsSpan = document.getElementById("corps-left");
+const corpsEdit = document.getElementById("corps-edit");
+const plusBtn = document.getElementById("corps-plus");
+const minusBtn = document.getElementById("corps-minus");
+const doneBtn = document.getElementById("corps-done");
+
+async function updateCorpsDisplay() {
+    const res = await fetch("/get_corps_status");
+    const data = await res.json();
+    if (data.fearlessDraftOn) {
+        counter.style.display = "inline-block";
+        if (!editMode) corpsSpan.textContent = data.corpsLeft;
+    } else {
+        counter.style.display = "none";
+    }
+}
+
+// Poll every 5 seconds
+document.addEventListener("DOMContentLoaded", () => {
+    updateCorpsDisplay();
+    setInterval(updateCorpsDisplay, 5000);
+});
+
+// Enter edit mode on Ctrl+Click (desktop) or double tap / long press (mobile)
+let touchTimer;
+counter.addEventListener("click", (e) => {
+    if (e.ctrlKey) toggleEditMode();
+});
+counter.addEventListener("touchstart", () => {
+    touchTimer = setTimeout(toggleEditMode, 600); // long press for mobile
+});
+counter.addEventListener("touchend", () => clearTimeout(touchTimer));
+
+function toggleEditMode() {
+    editMode = !editMode;
+    corpsEdit.style.display = editMode ? "block" : "none";
+}
+
+// Update corps count on + / -
+plusBtn.addEventListener("click", () => adjustCorps(1));
+minusBtn.addEventListener("click", () => adjustCorps(-1));
+doneBtn.addEventListener("click", () => toggleEditMode());
+
+async function adjustCorps(amount) {
+    let current = parseInt(corpsSpan.textContent);
+    let newCount = Math.max(0, current + amount);
+    corpsSpan.textContent = newCount;
+
+    // Save to server
+    await fetch("/adjust_corps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ corpsLeft: newCount })
+    });
+}
+</script>

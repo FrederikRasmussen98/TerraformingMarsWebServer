@@ -11,16 +11,14 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length
 
+from utils import load_json_file, save_json_file, load_corps_data, save_corps_data, update_corps_left, setup_plot_style
+
 app = Flask(__name__)
 DATA_FILE = "results.json"
 
 
 # Load data
-if os.path.exists(DATA_FILE):
-    with open(DATA_FILE, "r") as file:
-        results = json.load(file)
-else:
-    results = []
+results = load_json_file(DATA_FILE, [])
 
 @app.route('/')
 def home():
@@ -78,8 +76,7 @@ def generate_plot():
         season = 1  # default to season 1 if invalid
 
     # Load game data
-    with open('results.json', 'r') as file:
-        game_data = json.load(file)
+    game_data = load_json_file('results.json', [])
 
     # Filter by season
     game_data = [entry for entry in game_data if entry.get('season', 1) == season]
@@ -171,16 +168,7 @@ def generate_plot():
 
     # Plot 1: Accumulated Scores
     fig, ax = plt.subplots(figsize=(10, 5), dpi=220)
-    fig.patch.set_facecolor(bg_color)
-    ax.set_facecolor(bg_color)
-    for spine in ax.spines.values():
-        spine.set_edgecolor('white')
-        spine.set_linewidth(1.5)
-        spine.set_alpha(0.5)
-    ax.tick_params(axis='both', which='both', colors=tick_color)
-    ax.set_xticklabels(dates, rotation=45)
-    ax.set_xlabel('Date', color=tick_color, alpha=0.7)
-    ax.set_ylabel('Accumulated Score', color=tick_color, alpha=0.7)
+    setup_plot_style(ax, fig, bg_color, tick_color, 'Date', 'Accumulated Score', dates)
 
     
 
@@ -201,16 +189,7 @@ def generate_plot():
 
     # Plot 2: Game Points
     fig2, ax2 = plt.subplots(figsize=(10, 5), dpi=220)
-    fig2.patch.set_facecolor(bg_color)
-    ax2.set_facecolor(bg_color)
-    for spine in ax2.spines.values():
-        spine.set_edgecolor('white')
-        spine.set_linewidth(1.5)
-        spine.set_alpha(0.5)
-    ax2.tick_params(axis='both', which='both', colors=tick_color)
-    ax2.set_xticklabels(dates, rotation=45)
-    ax2.set_xlabel('Date', color=tick_color, alpha=0.7)
-    ax2.set_ylabel('Points', color=tick_color, alpha=0.7)
+    setup_plot_style(ax2, fig2, bg_color, tick_color, 'Date', 'Points', dates)
 
     for player, scores in player_game_points.items():
         ax2.plot(dates, scores, marker='o', label=player, color=player_colors.get(player, 'gray'), alpha=0.7)
@@ -273,18 +252,10 @@ def log_result():
         }
 
         results.append(new_result)
-        with open(DATA_FILE, "w") as file:
-            json.dump(results, file, indent=4)
+        save_json_file(DATA_FILE, results)
 
-        # ======= NEW: update corps_left =======
-        if os.path.exists("corps_left.json"):
-            with open("corps_left.json", "r") as f:
-                corps_data = json.load(f)
-            if corps_data.get("fearlessDraftOn", False):
-                corps_data["corpsLeft"] = max(0, corps_data.get("corpsLeft", 0) - num_players)
-                with open("corps_left.json", "w") as f:
-                    json.dump(corps_data, f, indent=4)
-        # =======================================
+        # Update corps_left
+        update_corps_left(num_players)
 
         return jsonify({"message": "Result saved!"}), 200
 
@@ -293,26 +264,18 @@ def log_result():
         return jsonify({"message": "Failed to save result"}), 500
 @app.route('/get_corps_status')
 def get_corps_status():
-    if os.path.exists("corps_left.json"):
-        with open("corps_left.json", "r") as f:
-            data = json.load(f)
-    else:
-        data = {"fearlessDraftOn": False, "corpsLeft": 0}
+    data = load_corps_data()
     return jsonify(data)
 @app.route("/adjust_corps", methods=["POST"])
 def adjust_corps():
     try:
         data = request.json
-        if os.path.exists("corps_left.json"):
-            with open("corps_left.json", "r") as f:
-                corps_data = json.load(f)
-        else:
-            corps_data = {"fearlessDraftOn": True, "corpsLeft": 0}
-
+        corps_data = load_corps_data()
+        if not corps_data.get("fearlessDraftOn"):
+            corps_data["fearlessDraftOn"] = True
+        
         corps_data["corpsLeft"] = max(0, int(data.get("corpsLeft", corps_data.get("corpsLeft", 0))))
-
-        with open("corps_left.json", "w") as f:
-            json.dump(corps_data, f, indent=4)
+        save_corps_data(corps_data)
 
         return jsonify({"status": "success"})
     except Exception as e:
@@ -322,8 +285,7 @@ def adjust_corps():
 @app.route('/get_results', methods=['GET'])
 def get_results():
     try:
-        with open('results.json', 'r') as f:
-            results = json.load(f)
+        results = load_json_file('results.json', [])
         print("Results loaded successfully:", results)  # Log the results
         return jsonify(results)
     except Exception as e:
@@ -333,8 +295,7 @@ def get_results():
 @app.route('/update_results', methods=['POST'])
 def update_results():
     updated_results = request.json
-    with open('results.json', 'w') as f:
-        json.dump(updated_results, f, indent=4)
+    save_json_file('results.json', updated_results)
     return jsonify({"status": "success"})
 
 @app.route('/update_season', methods=['POST'])

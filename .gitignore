@@ -1,2 +1,4 @@
 virEnv/
 results.json
+__pycache__/
+*.pyc

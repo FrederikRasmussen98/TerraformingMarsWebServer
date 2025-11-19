@@ -1,6 +1,6 @@
 import os
-import shutil
 from datetime import datetime
+from utils import load_json_file, save_json_file
 
 def backup_results():
     # Define source file and backup directory
@@ -14,11 +14,9 @@ def backup_results():
     timestamp = datetime.now().strftime("%Y_%m_%d")
     backup_file = os.path.join(backup_dir, f"{timestamp}_results.json")
     
-    # Copy the file
-    print(os.getcwd())
-    print(source_file)
-    print(backup_file)
-    shutil.copy(source_file, backup_file)
+    # Load and save using utility functions
+    data = load_json_file(source_file, [])
+    save_json_file(backup_file, data)
     print(f"Backup created: {backup_file}")
 
 if __name__ == "__main__":

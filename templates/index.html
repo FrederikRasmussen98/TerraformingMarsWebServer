@@ -6,25 +6,285 @@
 <style>
     body {
         color: white;
+        display: flex;
+        justify-content: space-around;
+    }
+    
+    .player-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 130px;
+        height: 100vh;
+        background: rgba(30, 10, 10, 0.95);
+        padding: 80px 10px 20px 10px;
+        overflow-y: auto;
+        z-index: 100;
+        border-right: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .player-sidebar h3 {
+        font-size: 1rem;
+        margin: 0 0 10px 0;
+        text-align: center;
+        color: var(--navbar-link-color);
     }
 
     .container {
         background: rgba(50, 15, 15, 0.85);
         border-radius: 15px;
-        margin-top: 150px;
-        padding: 40px 60px;
+        padding: 30px 40px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        max-width: 650px;
-        margin-left: auto;
+        max-width: 1400px;
+        margin-left: 200px;
         margin-right: auto;
         position: relative;
     }
 
- 
+    .player-pool {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
- 
+    .player-tile {
+        padding: 10px 8px;
+        background: var(--button-bg);
+        border-radius: 6px;
+        text-align: center;
+        cursor: move;
+        transition: all 0.3s ease;
+        user-select: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        touch-action: none;
+    }
+    
+    .player-tile.long-press {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
 
+    .player-tile:hover {
+        background: var(--button-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
 
+    .player-tile.dragging {
+        opacity: 0.5;
+        cursor: grabbing;
+    }
+
+    .player-tile.used-in-ranking {
+        opacity: 0.4;
+        background: rgba(80, 80, 80, 0.6) !important;
+        cursor: not-allowed;
+    }
+
+    .player-tile.used-in-ranking:hover {
+        background: rgba(80, 80, 80, 0.6) !important;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+    .player-tile.selected-for-placement {
+        background: var(--button-hover) !important;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3);
+        transform: scale(1.08);
+        cursor: pointer;
+        animation: highlight-pulse 0.6s ease-in-out;
+    }
+
+    @keyframes highlight-pulse {
+        0% {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        100% {
+            transform: scale(1.08);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    .ranking-slots {
+        margin: 10px 0;
+    }
+
+    .ranking-slot {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+        margin: 8px 0;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        min-height: 70px;
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        transition: all 0.2s ease;
+        position: relative;
+        box-sizing: border-box;
+    }
+
+    .ranking-slot.filled {
+        border: 2px solid var(--navbar-link-color);
+        background: rgba(0, 0, 0, 0.5);
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ranking-slot.drag-over {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--button-bg);
+    }
+
+    .ranking-slot.drag-over:hover,
+    .ranking-slot:hover {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .ranking-slot:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .ranking-slot .remove-player-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 4px 7px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 1.3rem;
+        font-weight: bold;
+        line-height: 0.8;
+        display: none;
+        z-index: 20;
+        width: 30px;
+        height: 30px;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .ranking-slot.filled:hover .remove-player-btn {
+        display: flex;
+        background: rgba(220, 53, 69, 1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .ranking-slot .remove-player-btn:hover {
+        background: rgba(255, 70, 70, 1);
+        transform: scale(1.1);
+    }
+
+    /* Highlight slots when player is selected for click-to-place */
+    :has(> .player-tile.selected-for-placement) ~ .ranking-slots .ranking-slot:not(.filled),
+    .player-pool:has(.player-tile.selected-for-placement) ~ .ranking-and-awards-container .ranking-slots .ranking-slot:not(.filled) {
+        border: 2px solid var(--button-hover) !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        animation: pulse-ready 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-ready {
+        0%, 100% {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0);
+        }
+        50% {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+    }
+
+    .rank-number {
+        font-size: 1.6rem;
+        font-weight: bold;
+        color: var(--navbar-link-color);
+        min-width: 35px;
+        text-align: center;
+        display: none;
+    }
+
+    .ranking-slot.filled .rank-number {
+        display: block;
+    }
+
+    .player-tile.in-slot {
+        cursor: move;
+        flex-shrink: 0;
+        min-width: 120px;
+        /* Solid placed appearance */
+        background: var(--button-bg) !important;
+        opacity: 1;
+        border: 2px solid var(--navbar-link-color) !important;
+        color: white;
+        font-weight: 700;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
+    }
+
+    .player-tile.in-slot:hover {
+        background: var(--button-hover) !important;
+        box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3),
+                    0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .slot-inputs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex-grow: 1;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .input-group label {
+        font-size: 0.75rem;
+        color: var(--navbar-link-color);
+        margin: 0;
+    }
+
+    .input-group input {
+        width: 70px;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        font-size: 1rem;
+        text-align: center;
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    .input-group input:focus {
+        outline: none;
+        border-color: var(--button-bg);
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Mobile numpad support */
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        appearance: none;
+        margin: 0;
+    }
 
     table {
         width: 100%;
@@ -130,13 +390,523 @@
             width: 95%;
             padding: 20px;
         }
-
-  
+        
+        .player-pool {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
+    
+    .milestones-awards-section {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 8px;
+        border-radius: 10px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .milestones-awards-section h3 {
+        margin: 0 0 8px 0;
+        font-size: 1rem;
+    }
+    
+    #milestones-container,
+    #awards-container {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .milestone-award-item {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 12px;
+        margin: 0;
+        border-radius: 5px;
+        border-left: 3px solid var(--button-bg);
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+        position: relative;
+        align-items: start;
+    }
+    
+    .milestone-award-item .remove-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: rgba(255, 0, 0, 0.8);
+        color: white;
+        border: none;
+        padding: 2px 6px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+    
+    .milestone-award-item .remove-btn:hover {
+        background: rgba(255, 0, 0, 1);
+        transform: scale(1.15);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+    }
+    
+    .milestone-labels {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding-top: 8px;
+    }
+    
+    .milestone-labels label {
+        font-size: 0.9rem;
+        color: var(--navbar-link-color);
+        font-weight: 500;
+        white-space: nowrap;
+        text-align: left;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .milestone-award-item h4 {
+        margin: 0;
+        color: var(--navbar-link-color);
+        font-size: 0.85rem;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+    
+    .award-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0;
+        background: transparent;
+        border-radius: 0;
+        width: 100%;
+    }
+    
+    .milestone-content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .milestone-content > * {
+        width: 100%;
+    }
+    
+    .award-row select {
+        padding: 6px 10px;
+        background: rgba(0, 0, 0, 0.4);
+        color: white;
+        border: 2px solid var(--button-bg);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        min-width: 150px;
+        flex: 1;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        height: 32px;
+    }
+
+    .milestone-content select {
+        padding: 6px 10px;
+        background: rgba(0, 0, 0, 0.4);
+        color: white;
+        border: 2px solid var(--button-bg);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        height: 32px;
+        box-sizing: border-box;
+    }
+    
+    .milestone-content select:hover {
+        border-color: var(--button-hover);
+        background: rgba(0, 0, 0, 0.6);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+    }
+    
+    .milestone-content select:focus {
+        outline: none;
+        border-color: var(--button-hover);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3),
+                    inset 0 0 5px rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.7);
+    }
+    
+    .award-row label {
+        min-width: 80px;
+        font-weight: 600;
+        color: var(--navbar-link-color);
+        font-size: 0.8rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .award-selects {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        flex: 1;
+        align-items: center;
+    }
+    
+    .award-selects select {
+        min-width: 100px;
+        padding: 3px 6px;
+        background: rgba(0, 0, 0, 0.4);
+        color: white;
+        border: 2px solid var(--button-bg);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .award-selects select:hover {
+        border-color: var(--button-hover);
+        background: rgba(0, 0, 0, 0.6);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .award-selects select:focus {
+        outline: none;
+        border-color: var(--button-hover);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3),
+                    inset 0 0 5px rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.7);
+    }
+    
+    .award-row.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    
+    .winner-drop-zone {
+        min-height: 32px;
+        padding: 6px 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        flex-wrap: wrap;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+    
+    .winner-drop-zone:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .winner-drop-zone.drag-over {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--button-bg);
+        transform: scale(1.05);
+    }
+    
+    .winner-drop-zone.filled {
+        border-style: solid;
+        border-color: var(--navbar-link-color);
+    }
+    
+    .winner-tile {
+        padding: 2px 6px;
+        background: var(--button-bg);
+        border-radius: 3px;
+        color: white;
+        font-size: 0.75rem;
+        cursor: move;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        animation: snapIn 0.2s ease-out;
+    }
+    
+    @keyframes snapIn {
+        0% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .winner-tile .remove-winner {
+        cursor: pointer;
+        font-weight: bold;
+        opacity: 0.8;
+        font-size: 1.1rem;
+        line-height: 1;
+    }
+
+    .winner-tile .remove-winner:hover {
+        opacity: 1;
+        font-size: 1.2rem;
+    }
+    
+    .ranking-and-awards-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin: 15px 0;
+    }
+    
+    .ranking-section, .awards-milestones-section {
+        min-width: 0;
+    }
+    
+    .awards-milestones-section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    @media (max-width: 1200px) {
+        .ranking-and-awards-container {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .player-sidebar {
+            width: 100px;
+            padding: 70px 5px 20px 5px;
+        }
+        
+        .container_simple {
+            margin-left: 100px;
+        }
+        
+        .container {
+            padding: 15px 10px;
+        }
+        
+        .player-tile {
+            font-size: 0.75rem;
+            padding: 8px 4px;
+        }
+        
+        .ranking-slot {
+            padding: 8px;
+            gap: 8px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .rank-number {
+            font-size: 1.2rem;
+            min-width: 25px;
+        }
+        
+        .milestone-award-item {
+            padding: 6px;
+        }
+        
+        .award-row {
+            flex-wrap: wrap;
+        }
+        
+        .award-row label {
+            min-width: 50px;
+            font-size: 0.75rem;
+        }
+        
+        .winner-drop-zone {
+            min-width: 100px;
+            font-size: 0.7rem;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+        }
+        
+        h3 {
+            font-size: 1rem;
+        }
+    }
+    
+    .winner-selects {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .winner-selects select {
+        padding: 8px 12px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.4);
+        color: white;
+        border: 2px solid var(--button-bg);
+        min-width: 150px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .winner-selects select:hover {
+        border-color: var(--button-hover);
+        background: rgba(0, 0, 0, 0.6);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .winner-selects select:focus {
+        outline: none;
+        border-color: var(--button-hover);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3),
+                    inset 0 0 5px rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.7);
+    }
+    
+    .winner-selects label {
+        font-size: 0.9rem;
+        color: var(--navbar-link-color);
+    }
+    
+    .add-milestone-btn, .add-award-btn {
+        background: var(--button-bg);
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 8px;
+        font-size: 0.85rem;
+        align-self: flex-start;
+    }
+    
+    .add-milestone-btn:hover, .add-award-btn:hover {
+        background: var(--button-hover);
+    }
+    
+    .add-winner-btn {
+        background: rgba(100, 200, 100, 0.8);
+        color: white;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        margin-left: 10px;
+    }
+    
+    .add-winner-btn:hover {
+        background: rgba(100, 200, 100, 1);
+    }
+    
+    .draw-indicator {
+        background: rgba(255, 200, 0, 0.3);
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        color: #ffc107;
+        margin-left: 5px;
+    }
+
+    /* Season-themed dropdowns */
+    select {
+        background: rgba(0, 0, 0, 0.4);
+        color: white;
+        border: 2px solid var(--button-bg);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    select:hover {
+        border-color: var(--button-hover);
+        background: rgba(0, 0, 0, 0.6);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    select:focus {
+        outline: none;
+        border-color: var(--button-hover);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3),
+                    inset 0 0 5px rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    select option {
+        background: rgba(40, 20, 20, 0.95);
+        color: white;
+        padding: 8px 12px;
+    }
+
+    select option:checked {
+        background: var(--button-bg);
+        color: white;
+    }
+
+    /* Date input styling to match season-themed dropdowns */
+    input[type="date"] {
+        background: rgba(0, 0, 0, 0.4);
+        color: white;
+        border: 2px solid var(--button-bg);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    input[type="date"]:hover {
+        border-color: var(--button-hover);
+        background: rgba(0, 0, 0, 0.6);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    input[type="date"]:focus {
+        outline: none;
+        border-color: var(--button-hover);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3),
+                    inset 0 0 5px rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="player-sidebar">
+    <h3>Players</h3>
+    <div class="player-pool" id="player-pool">
+        <!-- Player tiles will be added here -->
+    </div>
+</div>
+
 <div class="container_simple">
     <h1>Log Board Game Results</h1>
     <form method="POST" action="/log" onsubmit="handleFormSubmit(event)">
@@ -146,7 +916,8 @@
         <label for="season">Season:</label>
         <select name="season" required>
           <option value="1">1</option>
-          <option value="2" selected>2</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
         </select>
 
         <label for="game">Game Name:</label>
@@ -154,25 +925,32 @@
             <option value="Terraforming Mars">Terraforming Mars</option>
         </select>
 
-        <label>Number of Players (1-5):</label>
-        <div id="max_players_buttons">
-            <button type="button" onclick="selectPlayerButton(this, 1)">1</button>
-            <button type="button" onclick="selectPlayerButton(this, 2)">2</button>
-            <button type="button" onclick="selectPlayerButton(this, 3)">3</button>
-            <button type="button" onclick="selectPlayerButton(this, 4)">4</button>
-            <button type="button" onclick="selectPlayerButton(this, 5)">5</button>
+        <div class="ranking-and-awards-container">
+            <div class="ranking-section">
+                <h3>Ranking</h3>
+                <div class="ranking-slots" id="ranking-slots">
+                    <!-- Ranking slots will be added here -->
+                </div>
+            </div>
+            
+            <div class="awards-milestones-section">
+                <div class="milestones-awards-section">
+                    <h3>Milestones</h3>
+                    <div id="milestones-container">
+                        <!-- Milestone items will be added here -->
+                    </div>
+                    <button type="button" class="add-milestone-btn" onclick="addMilestone()">+ Add Milestone</button>
+                </div>
+                
+                <div class="milestones-awards-section" style="margin-top: 10px;">
+                    <h3>Awards</h3>
+                    <div id="awards-container">
+                        <!-- Award items will be added here -->
+                    </div>
+                    <button type="button" class="add-award-btn" onclick="addAward()">+ Add Award</button>
+                </div>
+            </div>
         </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Player</th>
-                    <th>Points</th>
-                    <th>Game Score (Optional)</th>
-                </tr>
-            </thead>
-            <tbody id="player_table_body"></tbody>
-        </table>
 
         <p id="error_message"></p>
 
@@ -192,31 +970,410 @@
 
 <script>
 const playerOptions = ["Alstrup", "Frederik", "Magnus", "Best", "Raschke", "MicrobeMorten"];
+const maxPlayers = 6;
+let draggedElement = null;
+let milestoneCount = 0;
+let awardCount = 0;
 
-function validateUniqueInputs() {
-    const playerSelects = document.querySelectorAll(".player-select");
-    const pointsSelects = document.querySelectorAll(".points-select");
+const MILESTONES = [
+    "Agronomist", "Architect", "Bricoleur", "Builder", "Business Person", "Capitalist",
+    "Centralist", "Coastguard", "Collector", "Decentralist", "Distributor", "Diversifier",
+    "Duopolist", "Ecologist", "Economizer", "Engineer", "Energizer", "Extremist",
+    "Farmer", "Firestarter", "Forester", "Gambler", "Gardener", "Generalist",
+    "Geologist", "Hoverlord", "Investigator", "Investor", "Land Specialist", "Leader",
+    "Legend", "Lobyist", "Mayor", "Metallurgist", "Minimalist", "Pioneer",
+    "Planner", "Planetologist", "Plutocrat", "Polar Explorer", "Researcher", "Rim Settler",
+    "Schemer", "Settler", "Sister Planet Explorer", "Space Cowboy", "Spacefarer", "Specialist",
+    "Tactician", "Terraformer", "Trader", "Tropicalist", "Tycoon"
+].sort();
 
-    const selectedPlayers = Array.from(playerSelects).map(select => select.value);
-    const selectedPoints = Array.from(pointsSelects).map(select => select.value);
+const AWARDS = [
+    "Banker", "Benefactor", "Biologist", "Blacksmith", "Botanist", "Celebrity",
+    "City Slicker", "Collector", "Contractor", "Coordinator", "Cosmic Settler", "Cultivator",
+    "Desert Settler", "Earthling", "Electrician", "Estate Dealer", "Excentric", "Forecaster",
+    "Founder", "Hegemon", "Highlander", "Historian", "Incorporator", "Industrialist",
+    "Inlander", "Landlord", "Landscaper", "Magnate", "Manufacturer", "Metropolist",
+    "Miner", "Mogul", "Nationalist", "Naturalist", "Opportunist", "Powerhouse",
+    "Scientist", "Space Baron", "Suburbian", "Technologist", "Thermalist", "Tourist",
+    "Traveller", "Venuphile", "Voyager", "Zoologist"
+].sort();
 
-    const duplicatePlayers = selectedPlayers.filter((value, index, self) => value && self.indexOf(value) !== index);
-    const duplicatePoints = selectedPoints.filter((value, index, self) => value && self.indexOf(value) !== index);
+// Initialize player pool
+function initPlayerPool() {
+    const pool = document.getElementById('player-pool');
+    pool.innerHTML = '';
+    
+    playerOptions.forEach(player => {
+        const tile = document.createElement('div');
+        tile.className = 'player-tile';
+        tile.textContent = player;
+        tile.draggable = true;
+        tile.dataset.player = player;
+        
+        tile.addEventListener('dragstart', (e) => {
+            draggedElement = tile; // Always use sidebar tile
+            handleDragStart(e);
+        });
+        tile.addEventListener('dragend', handleDragEnd);
+        
+        // Touch support for mobile
+        let longPressTimer;
+        let isDraggingTouch = false;
+        let dragClone = null;
+        
+        tile.addEventListener('touchstart', (e) => {
+            longPressTimer = setTimeout(() => {
+                tile.classList.add('long-press');
+                isDraggingTouch = true;
+                draggedElement = tile;
+                navigator.vibrate && navigator.vibrate(50);
+                
+                // Create visual clone
+                dragClone = tile.cloneNode(true);
+                dragClone.style.position = 'fixed';
+                dragClone.style.pointerEvents = 'none';
+                dragClone.style.zIndex = '10000';
+                dragClone.style.opacity = '0.8';
+                dragClone.style.transform = 'scale(1.1)';
+                dragClone.style.width = tile.offsetWidth + 'px';
+                document.body.appendChild(dragClone);
+                
+                const touch = e.touches[0];
+                const rect = tile.getBoundingClientRect();
+                const offsetX = touch.clientX - rect.left;
+                const offsetY = touch.clientY - rect.top;
+                
+                // Store offset for smooth dragging
+                dragClone.dataset.offsetX = offsetX;
+                dragClone.dataset.offsetY = offsetY;
+                
+                dragClone.style.left = (touch.clientX - offsetX) + 'px';
+                dragClone.style.top = (touch.clientY - offsetY) + 'px';
+            }, 500);
+        });
+        
+        tile.addEventListener('touchmove', (e) => {
+            if (isDraggingTouch) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                
+                // Move clone with finger immediately
+                if (dragClone) {
+                    const offsetX = parseFloat(dragClone.dataset.offsetX);
+                    const offsetY = parseFloat(dragClone.dataset.offsetY);
+                    dragClone.style.left = (touch.clientX - offsetX) + 'px';
+                    dragClone.style.top = (touch.clientY - offsetY) + 'px';
+                }
+                
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                
+                // Highlight drop zones
+                document.querySelectorAll('.ranking-slot, .winner-drop-zone').forEach(zone => {
+                    zone.classList.remove('drag-over');
+                });
+                
+                const dropZone = elementBelow?.closest('.ranking-slot, .winner-drop-zone');
+                if (dropZone) {
+                    dropZone.classList.add('drag-over');
+                }
+            }
+        });
+        
+        tile.addEventListener('touchend', (e) => {
+            clearTimeout(longPressTimer);
+            tile.classList.remove('long-press');
+            
+            // Remove clone
+            if (dragClone) {
+                dragClone.remove();
+                dragClone = null;
+            }
+            
+            if (isDraggingTouch) {
+                const touch = e.changedTouches[0];
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                const dropZone = elementBelow?.closest('.ranking-slot');
+                const winnerZone = elementBelow?.closest('.winner-drop-zone');
+                
+                if (dropZone) {
+                    const fakeEvent = {
+                        preventDefault: () => {},
+                        stopPropagation: () => {},
+                        currentTarget: dropZone
+                    };
+                    handleDrop(fakeEvent);
+                } else if (winnerZone) {
+                    const milestoneId = winnerZone.getAttribute('data-milestone-id');
+                    const awardId = winnerZone.getAttribute('data-award-id');
+                    const place = winnerZone.getAttribute('data-place');
+                    
+                    const fakeEvent = {
+                        preventDefault: () => {},
+                        stopPropagation: () => {},
+                        currentTarget: winnerZone
+                    };
+                    
+                    if (milestoneId) {
+                        handleMilestoneWinnerDrop(fakeEvent, parseInt(milestoneId));
+                    } else if (awardId && place) {
+                        handleAwardWinnerDrop(fakeEvent, parseInt(awardId), place);
+                    }
+                }
+                
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            }
+            
+            isDraggingTouch = false;
+        });
+        
+        tile.addEventListener('touchcancel', () => {
+            clearTimeout(longPressTimer);
+            tile.classList.remove('long-press');
+            
+            // Remove clone
+            if (dragClone) {
+                dragClone.remove();
+                dragClone = null;
+            }
+            
+            isDraggingTouch = false;
+        });
 
-    const errorMessage = document.getElementById("error_message");
+        // Click-to-place interaction: Click player to select, click slot to place
+        tile.addEventListener('click', (e) => {
+            // Ignore if dragging
+            if (isDraggingTouch) return;
+            
+            // Toggle selection on player tile
+            const wasSelected = tile.classList.contains('selected-for-placement');
+            document.querySelectorAll('.player-tile').forEach(t => t.classList.remove('selected-for-placement'));
+            
+            if (!wasSelected) {
+                tile.classList.add('selected-for-placement');
+                draggedElement = tile;
+            } else {
+                draggedElement = null;
+            }
+        });
+        
+        pool.appendChild(tile);
+    });
+}
 
-    if (duplicatePlayers.length > 0 || duplicatePoints.length > 0) {
-        errorMessage.textContent = "Error: Duplicate player names or points are not allowed.";
-        document.getElementById("submit_button").disabled = true;
-    } else {
-        errorMessage.textContent = "";
-        document.getElementById("submit_button").disabled = false;
+// Initialize ranking slots
+function initRankingSlots() {
+    const container = document.getElementById('ranking-slots');
+    container.innerHTML = '';
+    
+    for (let i = 1; i <= maxPlayers; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'ranking-slot';
+        slot.dataset.rank = i;
+        
+        slot.addEventListener('dragover', handleDragOver);
+        slot.addEventListener('drop', handleDrop);
+        slot.addEventListener('dragleave', handleDragLeave);
+        
+        // Click-to-place: Click slot to place selected player
+        slot.addEventListener('click', (e) => {
+            if (draggedElement && draggedElement.classList.contains('player-tile')) {
+                const fakeEvent = {
+                    preventDefault: () => {},
+                    stopPropagation: () => {},
+                    currentTarget: slot
+                };
+                handleDrop(fakeEvent);
+                draggedElement.classList.remove('selected-for-placement');
+                draggedElement = null;
+            }
+        });
+        
+        const rankNumber = document.createElement('div');
+        rankNumber.className = 'rank-number';
+        rankNumber.textContent = i;
+        slot.appendChild(rankNumber);
+        
+        container.appendChild(slot);
     }
+}
+
+function handleDragStart(e) {
+    draggedElement = e.target;
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+    document.querySelectorAll('.ranking-slot').forEach(slot => {
+        slot.classList.remove('drag-over');
+    });
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drag-over');
+    return false;
+}
+
+function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    e.preventDefault();
+    
+    const slot = e.currentTarget;
+    slot.classList.remove('drag-over');
+    
+    if (draggedElement && draggedElement.classList.contains('player-tile')) {
+        const playerName = draggedElement.dataset.player;
+        
+        // Only allow drops from sidebar tiles (not from within slots)
+        if (draggedElement.classList.contains('in-slot')) {
+            return false; // Don't allow dropping from already-placed tiles
+        }
+        
+        // Check if slot is already filled
+        if (slot.classList.contains('filled')) {
+            return false; // Don't drop on occupied slots
+        }
+        
+        // Check if player is already ranked anywhere
+        const alreadyRanked = Array.from(document.querySelectorAll('.ranking-slot.filled .player-tile'))
+            .some(t => t.dataset && t.dataset.player === playerName);
+        
+        if (alreadyRanked) {
+            showDialog('This player is already ranked!');
+            return false;
+        }
+        
+        // Clone the tile for the slot
+        const clonedTile = draggedElement.cloneNode(true);
+        clonedTile.classList.add('in-slot');
+        clonedTile.draggable = false;
+        clonedTile.style.cursor = 'default';
+        
+        // Add player tile to slot
+        slot.appendChild(clonedTile);
+        slot.classList.add('filled');
+        
+        // Add click handler - clicking a placed player deselects any highlighted player
+        slot.onclick = (e) => {
+            // Only process if clicking on the slot itself or the player tile (not inputs)
+            if (e.target.closest('.slot-inputs')) return;
+            
+            // Deselect any selected player in sidebar
+            const selectedPlayer = document.querySelector('.player-tile.selected-for-placement');
+            if (selectedPlayer) {
+                selectedPlayer.classList.remove('selected-for-placement');
+            }
+        };
+        
+        // Mark original sidebar tile as used in ranking (grayed out)
+        const sidebarTile = Array.from(document.getElementById('player-pool').querySelectorAll('.player-tile'))
+            .find(t => t.dataset.player === playerName && !t.classList.contains('in-slot'));
+        if (sidebarTile) {
+            sidebarTile.classList.add('used-in-ranking');
+        }
+        
+        // Add input fields
+        createSlotInputs(slot, playerName);
+    }
+    
+    return false;
+}
+
+function removePlayerFromRankingSlot(slot, playerName) {
+    // Remove player tile and inputs from slot
+    const inputs = slot.querySelector('.slot-inputs');
+    if (inputs) inputs.remove();
+    
+    const playerTile = slot.querySelector('.player-tile');
+    if (playerTile) playerTile.remove();
+    
+    slot.classList.remove('filled');
+    slot.onclick = null; // Remove click handler
+    
+    // Mark original sidebar tile as unused in ranking
+    const sidebarTile = Array.from(document.getElementById('player-pool').querySelectorAll('.player-tile'))
+        .find(t => t.dataset.player === playerName && !t.classList.contains('in-slot'));
+    if (sidebarTile) {
+        sidebarTile.classList.remove('used-in-ranking');
+    }
+}
+
+function createSlotInputs(slot, playerName) {
+    const inputsContainer = document.createElement('div');
+    inputsContainer.className = 'slot-inputs';
+    
+    // Game Score only
+    const scoreGroup = document.createElement('div');
+    scoreGroup.className = 'input-group';
+    scoreGroup.innerHTML = `
+        <label>Game Score</label>
+        <input type="number" 
+               name="game_score" 
+               min="0" 
+               max="200" 
+               placeholder="0"
+               inputmode="numeric"
+               pattern="[0-9]*">
+    `;
+    
+    inputsContainer.appendChild(scoreGroup);
+    slot.appendChild(inputsContainer);
 }
 
 function handleFormSubmit(event) {
     event.preventDefault();
+    
+    // Collect data from ranking slots
+    const slots = document.querySelectorAll('.ranking-slot.filled');
+    
+    if (slots.length === 0) {
+        showDialog('Please drag at least one player to the ranking area.');
+        return;
+    }
+    
     const formData = new FormData(event.target);
+    
+    // Add player data in ranking order
+    slots.forEach((slot, index) => {
+        const tile = slot.querySelector('.player-tile');
+        const inputs = slot.querySelectorAll('input');
+        
+        if (tile) {
+            formData.append('player', tile.dataset.player);
+            formData.append('points', slots.length - index);
+            
+            const gameScore = inputs[0]?.value || '';
+            formData.append('game_score', gameScore);
+        }
+    });
+    
+    // Collect award winners from drop zones
+    document.querySelectorAll('.winner-drop-zone[data-place="first"]').forEach(zone => {
+        const awardId = zone.getAttribute('data-award-id');
+        const tiles = zone.querySelectorAll('.winner-tile');
+        tiles.forEach(tile => {
+            formData.append('award_first', tile.dataset.player);
+        });
+    });
+    
+    document.querySelectorAll('.winner-drop-zone[data-place="second"]').forEach(zone => {
+        const tiles = zone.querySelectorAll('.winner-tile');
+        tiles.forEach(tile => {
+            formData.append('award_second', tile.dataset.player);
+        });
+    });
+    
     fetch('/log', {
         method: 'POST',
         body: formData
@@ -224,6 +1381,11 @@ function handleFormSubmit(event) {
     .then(response => response.json())
     .then(data => {
         showDialog(data.message);
+        if (data.success) {
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        }
     })
     .catch(() => showDialog("An error occurred. Please try again."));
 }
@@ -241,87 +1403,355 @@ document.getElementById('dialog').addEventListener('click', e => {
     if (e.target.id === 'dialog') e.target.style.display = 'none';
 });
 
-function selectPlayerButton(el, numPlayers) {
-    document.querySelectorAll('#max_players_buttons button').forEach(btn => btn.classList.remove('active'));
-    el.classList.add('active');
-    updatePlayerTable(numPlayers);
+// Initialize on page load
+window.onload = () => {
+    initPlayerPool();
+    initRankingSlots();
+};
+
+// Get players currently in ranking
+function getRankedPlayers() {
+    const slots = document.querySelectorAll('.ranking-slot.filled');
+    const players = [];
+    slots.forEach(slot => {
+        const tile = slot.querySelector('.player-tile');
+        if (tile) {
+            players.push(tile.dataset.player);
+        }
+    });
+    return players;
 }
 
-function updatePlayerTable(numPlayers) {
-    const playerTable = document.getElementById("player_table_body");
-    playerTable.innerHTML = "";
-
-    for (let i = 0; i < numPlayers; i++) {
-        const row = document.createElement("tr");
-
-        // Player select
-        const playerCell = document.createElement("td");
-        const playerSelect = document.createElement("select");
-        playerSelect.name = "player";
-        playerSelect.className = "player-select";
-        playerSelect.required = true;
-        playerSelect.onchange = validateUniqueInputs;
-
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.textContent = "-- Select Player --";
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        playerSelect.appendChild(defaultOption);
-
-        playerOptions.forEach(option => {
-            const opt = document.createElement("option");
-            opt.value = option;
-            opt.textContent = option;
-            playerSelect.appendChild(opt);
-        });
-        playerCell.appendChild(playerSelect);
-        row.appendChild(playerCell);
-
-        // Points select
-        const pointsCell = document.createElement("td");
-        const pointsSelect = document.createElement("select");
-        pointsSelect.name = "points";
-        pointsSelect.className = "points-select";
-        pointsSelect.required = true;
-        pointsSelect.onchange = validateUniqueInputs;
-
-        for (let j = 1; j <= 5; j++) {
-            const opt = document.createElement("option");
-            opt.value = j;
-            opt.textContent = j;
-            pointsSelect.appendChild(opt);
+function addMilestone() {
+    milestoneCount++;
+    const container = document.getElementById('milestones-container');
+    const players = getRankedPlayers();
+    
+    if (players.length === 0) {
+        showDialog('Please add players to ranking first!');
+        milestoneCount--;
+        return;
+    }
+    
+    const item = document.createElement('div');
+    item.className = 'milestone-award-item';
+    item.dataset.id = milestoneCount;
+    
+    let milestoneOptions = MILESTONES.map(m => `<option value="${m}">${m}</option>`).join('');
+    
+    item.innerHTML = `
+        <div class="milestone-labels">
+            <label>${milestoneCount}. Milestone:</label>
+            <label>Winner:</label>
+        </div>
+        <div class="milestone-content">
+            <select name="milestone_name" required style="width: 100%;">
+                <option value="">-- Select Milestone --</option>
+                ${milestoneOptions}
+            </select>
+            <div class="winner-drop-zone" 
+                 data-milestone-id="${milestoneCount}"
+                 ondragover="handleWinnerDragOver(event)"
+                 ondrop="handleMilestoneWinnerDrop(event, ${milestoneCount})"
+                 ondragleave="handleWinnerDragLeave(event)"
+                 style="width: 100%;">
+                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Drag or click player</span>
+            </div>
+            <input type="hidden" name="milestone_winner" id="milestone-winner-${milestoneCount}">
+        </div>
+        <button type="button" class="remove-btn" onclick="removeMilestone(${milestoneCount})" title="Remove Milestone">×</button>
+    `;
+    
+    container.appendChild(item);
+    
+    // Add click-to-place handler for milestone winner zone
+    const milestoneZone = item.querySelector('.winner-drop-zone');
+    milestoneZone.addEventListener('click', (e) => {
+        if (draggedElement && draggedElement.classList.contains('player-tile')) {
+            const fakeEvent = {
+                preventDefault: () => {},
+                stopPropagation: () => {},
+                currentTarget: milestoneZone
+            };
+            handleMilestoneWinnerDrop(fakeEvent, milestoneCount);
+            draggedElement.classList.remove('selected-for-placement');
+            draggedElement = null;
         }
-        pointsCell.appendChild(pointsSelect);
-        row.appendChild(pointsCell);
+    });
+}
 
-        // Game score select
-        const scoreCell = document.createElement("td");
-        const scoreSelect = document.createElement("select");
-        scoreSelect.name = "game_score";
-        const defaultScore = document.createElement("option");
-        defaultScore.value = "";
-        defaultScore.textContent = "-- Optional --";
-        defaultScore.selected = true;
-        scoreSelect.appendChild(defaultScore);
-
-        for (let k = 40; k <= 150; k++) {
-            const opt = document.createElement("option");
-            opt.value = k;
-            opt.textContent = k;
-            scoreSelect.appendChild(opt);
-        }
-        scoreCell.appendChild(scoreSelect);
-        row.appendChild(scoreCell);
-
-        playerTable.appendChild(row);
+function removeMilestone(id) {
+    const item = document.querySelector(`.milestone-award-item[data-id="${id}"]`);
+    if (item) {
+        item.remove();
     }
 }
 
-// Initialize with 4 players active
-window.onload = () => {
-    const fourthButton = document.querySelectorAll('#max_players_buttons button')[3];
-    selectPlayerButton(fourthButton, 4);
-};
+function addAward() {
+    awardCount++;
+    const container = document.getElementById('awards-container');
+    const players = getRankedPlayers();
+    
+    if (players.length === 0) {
+        showDialog('Please add players to ranking first!');
+        awardCount--;
+        return;
+    }
+    
+    const item = document.createElement('div');
+    item.className = 'milestone-award-item';
+    item.dataset.id = awardCount;
+    
+    let awardOptions = AWARDS.map(a => `<option value="${a}">${a}</option>`).join('');
+    
+    item.innerHTML = `
+        <div class="milestone-labels">
+            <label>${awardCount}. Award:</label>
+            <label>1st Place:</label>
+            <label>2nd Place:</label>
+        </div>
+        <div class="milestone-content">
+            <select name="award_name" required style="width: 100%;">
+                <option value="">-- Select Award --</option>
+                ${awardOptions}
+            </select>
+            <div class="winner-drop-zone" 
+                 data-award-id="${awardCount}"
+                 data-place="first"
+                 ondragover="handleWinnerDragOver(event)"
+                 ondrop="handleAwardWinnerDrop(event, ${awardCount}, 'first')"
+                 ondragleave="handleWinnerDragLeave(event)"
+                 style="width: 100%;">
+                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Drag or click player(s) (max 2)</span>
+            </div>
+            <div class="winner-drop-zone" 
+                 data-award-id="${awardCount}"
+                 data-place="second"
+                 ondragover="handleWinnerDragOver(event)"
+                 ondrop="handleAwardWinnerDrop(event, ${awardCount}, 'second')"
+                 ondragleave="handleWinnerDragLeave(event)"
+                 style="width: 100%;">
+                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Drag or click player(s) (max 2)</span>
+            </div>
+        </div>
+        <button type="button" class="remove-btn" onclick="removeAward(${awardCount})" title="Remove Award">×</button>
+        <input type="hidden" name="award_first_count" id="award-first-count-${awardCount}" value="0">
+        <input type="hidden" name="award_second_count" id="award-second-count-${awardCount}" value="0">
+    `;
+    
+    container.appendChild(item);
+    
+    // Add click-to-place handlers for award winner zones
+    const awardItem = item;
+    const firstZone = awardItem.querySelector('[data-place="first"]');
+    const secondZone = awardItem.querySelector('[data-place="second"]');
+    
+    firstZone.addEventListener('click', (e) => {
+        if (draggedElement && draggedElement.classList.contains('player-tile')) {
+            const fakeEvent = {
+                preventDefault: () => {},
+                stopPropagation: () => {},
+                currentTarget: firstZone
+            };
+            handleAwardWinnerDrop(fakeEvent, awardCount, 'first');
+            draggedElement.classList.remove('selected-for-placement');
+            draggedElement = null;
+        }
+    });
+    
+    secondZone.addEventListener('click', (e) => {
+        if (draggedElement && draggedElement.classList.contains('player-tile')) {
+            const fakeEvent = {
+                preventDefault: () => {},
+                stopPropagation: () => {},
+                currentTarget: secondZone
+            };
+            handleAwardWinnerDrop(fakeEvent, awardCount, 'second');
+            draggedElement.classList.remove('selected-for-placement');
+            draggedElement = null;
+        }
+    });
+}
+
+function removeAward(id) {
+    const item = document.querySelector(`.milestone-award-item[data-id="${id}"]`);
+    if (item) {
+        item.remove();
+    }
+}
+
+// Drag-drop handlers for milestone/award winners
+function handleWinnerDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.stopPropagation();
+    e.currentTarget.classList.add('drag-over');
+    return false;
+}
+
+function handleWinnerDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+
+function handleMilestoneWinnerDrop(e, milestoneId) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    e.preventDefault();
+    
+    const dropZone = e.currentTarget;
+    dropZone.classList.remove('drag-over');
+    
+    if (draggedElement && draggedElement.classList.contains('player-tile')) {
+        // Get player name from sidebar tile if available, otherwise from dragged element
+        let playerName = draggedElement.dataset.player;
+        if (!playerName && draggedElement.textContent) {
+            playerName = draggedElement.textContent.trim();
+        }
+        
+        // Clear existing winner (no need to mark as unused since we allow multiple uses)
+        const existingTiles = dropZone.querySelectorAll('.winner-tile');
+        existingTiles.forEach(t => t.remove());
+        
+        const placeholder = dropZone.querySelector('span');
+        if (placeholder) placeholder.remove();
+        
+        // Add winner tile
+        const tile = document.createElement('div');
+        tile.className = 'winner-tile';
+        tile.innerHTML = `${playerName} <span class="remove-winner" onclick="removeWinnerTile(this)">×</span>`;
+        dropZone.appendChild(tile);
+        dropZone.classList.add('filled');
+        
+        // Don't mark sidebar tile as used - allow reuse in awards/milestones
+        
+        // Update hidden input
+        document.getElementById(`milestone-winner-${milestoneId}`).value = playerName;
+    }
+    
+    return false;
+}
+
+function handleAwardWinnerDrop(e, awardId, place) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    e.preventDefault();
+    
+    const dropZone = e.currentTarget;
+    dropZone.classList.remove('drag-over');
+    
+    if (draggedElement && draggedElement.classList.contains('player-tile')) {
+        // Get player name from sidebar tile if available, otherwise from dragged element
+        let playerName = draggedElement.dataset.player;
+        if (!playerName && draggedElement.textContent) {
+            playerName = draggedElement.textContent.trim();
+        }
+        
+        // Check current count
+        const existingTiles = dropZone.querySelectorAll('.winner-tile');
+        if (existingTiles.length >= 2) {
+            showDialog('Maximum 2 winners allowed');
+            return false;
+        }
+        
+        // Check for duplicates
+        let isDuplicate = false;
+        existingTiles.forEach(tile => {
+            if (tile.textContent.includes(playerName)) {
+                isDuplicate = true;
+            }
+        });
+        
+        if (isDuplicate) {
+            showDialog('Player already added');
+            return false;
+        }
+        
+        // Remove placeholder
+        const placeholder = dropZone.querySelector('span');
+        if (placeholder) placeholder.remove();
+        
+        // Add winner tile
+        const tile = document.createElement('div');
+        tile.className = 'winner-tile';
+        tile.dataset.player = playerName;
+        tile.innerHTML = `${playerName} <span class="remove-winner" onclick="removeWinnerTile(this)">×</span>`;
+        dropZone.appendChild(tile);
+        dropZone.classList.add('filled');
+        
+        // Don't mark sidebar tile as used - allow reuse in awards/milestones
+        
+        // Update count and handle 2nd place disabling
+        updateAwardWinners(awardId, place);
+    }
+    
+    return false;
+}
+
+function removeWinnerTile(btn) {
+    const tile = btn.parentElement;
+    const dropZone = tile.parentElement;
+    
+    tile.remove();
+    
+    // No need to mark as unused since we don't mark as used for awards/milestones
+    
+    // Check if empty and add placeholder
+    if (dropZone.querySelectorAll('.winner-tile').length === 0) {
+        dropZone.classList.remove('filled');
+        const isMilestone = dropZone.hasAttribute('data-milestone-id');
+        const placeholder = document.createElement('span');
+        placeholder.style.color = 'rgba(255,255,255,0.5)';
+        placeholder.style.fontSize = '0.85rem';
+        placeholder.textContent = isMilestone ? 'Drag player here' : 'Drag player(s) here (max 2)';
+        dropZone.appendChild(placeholder);
+        
+        // Update milestone hidden input
+        if (isMilestone) {
+            const milestoneId = dropZone.getAttribute('data-milestone-id');
+            document.getElementById(`milestone-winner-${milestoneId}`).value = '';
+        }
+    }
+    
+    // Update award winners if it's an award
+    const awardId = dropZone.getAttribute('data-award-id');
+    const place = dropZone.getAttribute('data-place');
+    if (awardId && place) {
+        updateAwardWinners(awardId, place);
+    }
+}
+
+function updateAwardWinners(awardId, place) {
+    const dropZone = document.querySelector(`.winner-drop-zone[data-award-id="${awardId}"][data-place="${place}"]`);
+    const tiles = dropZone.querySelectorAll('.winner-tile');
+    const count = tiles.length;
+    
+    // Update hidden count
+    document.getElementById(`award-${place}-count-${awardId}`).value = count;
+    
+    // If first place has multiple winners, disable second place
+    if (place === 'first') {
+        const secondRow = document.getElementById(`second-row-${awardId}`);
+        const secondDropZone = secondRow.querySelector('.winner-drop-zone');
+        
+        if (count > 1) {
+            secondRow.classList.add('disabled');
+            // Clear second place
+            const secondTiles = secondDropZone.querySelectorAll('.winner-tile');
+            secondTiles.forEach(t => t.remove());
+            secondDropZone.classList.remove('filled');
+            const placeholder = document.createElement('span');
+            placeholder.style.color = 'rgba(255,255,255,0.5)';
+            placeholder.style.fontSize = '0.85rem';
+            placeholder.textContent = 'Drag player(s) here (max 2)';
+            secondDropZone.appendChild(placeholder);
+            document.getElementById(`award-second-count-${awardId}`).value = '0';
+        } else {
+            secondRow.classList.remove('disabled');
+        }
+    }
+}
 </script>
 {% endblock %}

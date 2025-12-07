@@ -75,11 +75,11 @@
 
     .checkbox-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 10px;
-        max-height: 300px;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+        max-height: 80px;
         overflow-y: auto;
-        padding: 10px;
+        padding: 8px;
         border-radius: 8px;
         background-color: rgba(50, 15, 15, 0.2);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -87,12 +87,12 @@
     }
 
     .checkbox-container label {
-        font-size: 1rem;
-        margin-left: 8px;
+        font-size: 0.85rem;
+        margin-left: 4px;
     }
 
     input[type="checkbox"] {
-        transform: scale(1.2);
+        transform: scale(1);
     }
 
 
@@ -101,6 +101,20 @@
         margin-top: 2px;
         border-collapse: collapse;
         background-color: #ffffff;
+        table-layout: fixed;
+    }
+
+    td, th {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        padding: 8px;
+    }
+
+    td:first-child, th:first-child {
+        width: 15%;
+        min-width: 100px;
+        word-break: break-word;
     }
 
 
@@ -141,6 +155,82 @@
         }
     }
 
+    #image-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .plot-container {
+        flex: 2;
+    }
+
+    .containerImageColumn {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        margin-left: 20px;
+    }
+
+    #image-container {
+        width: 100%;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stats-container {
+        margin-top: 16px;
+        margin-bottom: 8px;
+    }
+
+    .stats-container h2 {
+        font-size: 1.2rem;
+        margin: 8px 0;
+    }
+
+    .stats-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .stats-container button {
+        padding: 8px 16px;
+        font-size: 0.95rem;
+    }
+
+    dialog {
+        color: white;
+        background: linear-gradient(135deg, rgba(40, 30, 25, 0.95) 0%, rgba(60, 40, 30, 0.95) 100%);
+    }
+
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    dialog h2 {
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .season-button {
+        background-color: var(--button-bg);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .season-button:hover {
+        background-color: var(--button-hover);
+    }
 
 </style>
 
@@ -149,8 +239,8 @@ async function fetchPlotData(players, seasonParam) {
     const url = new URL('/generate_plot', window.location.origin);
     players.forEach(player => url.searchParams.append('players', player));
 
-    // Use the passed season parameter if available, otherwise read from select
-    const season = seasonParam || document.getElementById("season-select").value;
+    // Use the passed season parameter, or fall back to localStorage
+    const season = seasonParam || localStorage.getItem("selectedSeason") || "3";
     if (season && season !== "all") {
         url.searchParams.append("season", season);
     }
@@ -184,11 +274,27 @@ async function fetchPlotData(players, seasonParam) {
         const totalWins = stats['Total Wins'];
         const totalPoints = stats['Total Points'];
 
+        // Check if there's any milestone or award data
+        const playerStats = stats['Player Stats'];
+        let hasMilestones = false;
+        let hasAwardFirsts = false;
+        let hasAwardSeconds = false;
+
+        for (const player in playerStats) {
+            if (playerStats[player].milestones > 0) hasMilestones = true;
+            if (playerStats[player].award_firsts > 0) hasAwardFirsts = true;
+            if (playerStats[player].award_seconds > 0) hasAwardSeconds = true;
+        }
+
+        // Show/hide the headers based on data availability
+        document.getElementById('milestones-header').style.display = hasMilestones ? '' : 'none';
+        document.getElementById('award-firsts-header').style.display = hasAwardFirsts ? '' : 'none';
+        document.getElementById('award-seconds-header').style.display = hasAwardSeconds ? '' : 'none';
+
         // Find the player with the most wins
         let maxWins = -1;
         let playerWithMaxWins = "";
 
-        const playerStats = stats['Player Stats'];
         for (const player in playerStats) {
             const row = document.createElement("tr");
 
@@ -225,6 +331,24 @@ async function fetchPlotData(players, seasonParam) {
             minScoreCell.textContent = playerStats[player].min_game_score.toFixed(0);
             row.appendChild(minScoreCell);
 
+            if (hasMilestones) {
+                const milestonesCell = document.createElement("td");
+                milestonesCell.textContent = playerStats[player].milestones || 0;
+                row.appendChild(milestonesCell);
+            }
+
+            if (hasAwardFirsts) {
+                const awardFirstsCell = document.createElement("td");
+                awardFirstsCell.textContent = playerStats[player].award_firsts || 0;
+                row.appendChild(awardFirstsCell);
+            }
+
+            if (hasAwardSeconds) {
+                const awardSecondsCell = document.createElement("td");
+                awardSecondsCell.textContent = playerStats[player].award_seconds || 0;
+                row.appendChild(awardSecondsCell);
+            }
+
             // Sort after table has been filled
             //sortTable(2);
 
@@ -245,27 +369,29 @@ async function fetchPlotData(players, seasonParam) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    const seasonSelect = document.getElementById("season-select");
-    const savedSeason = localStorage.getItem("selectedSeason") || "1";
-
-    // Apply the saved season
-    if (seasonSelect) {
-        seasonSelect.value = savedSeason;
-    }
+    const savedSeason = localStorage.getItem("selectedSeason") || "3";
 
     // Apply theme based on saved season
+    document.body.classList.remove("venus-theme", "jupiter-theme");
     if (savedSeason === "2") {
         document.body.classList.add("venus-theme");
-    } else {
-        document.body.classList.remove("venus-theme");
+    } else if (savedSeason === "3") {
+        document.body.classList.add("jupiter-theme");
     }
-// Update the "Current Son of ..." header
-const winnerTitle = document.getElementById("current-winner-title");
-winnerTitle.textContent = (savedSeason === "2") ? "CURRENT SON OF VENUS" : "CURRENT SON OF MARS";
-
     
+    // Update the "Current Son of ..." header
+    const winnerTitle = document.getElementById("current-winner-title");
+    if (winnerTitle) {
+        if (savedSeason === "3") {
+            winnerTitle.textContent = "Zeus's chosen";
+        } else if (savedSeason === "2") {
+            winnerTitle.textContent = "Aphrodite's chosen";
+        } else {
+            winnerTitle.textContent = "Ares's chosen";
+        }
+    }
 
-    // Fetch plots using saved season
+    // Fetch plots using saved season ONCE on page load
     const selectedPlayers = Array.from(document.querySelectorAll('input[name="players"]:checked'))
         .map(input => input.value);
 
@@ -286,7 +412,7 @@ winnerTitle.textContent = (savedSeason === "2") ? "CURRENT SON OF VENUS" : "CURR
     };
 
 
-    function updateWinner(winner) {
+    async function updateWinner(winner) {
         if (currentWinner !== winner) {
             currentWinner = winner;
 
@@ -302,12 +428,26 @@ winnerTitle.textContent = (savedSeason === "2") ? "CURRENT SON OF VENUS" : "CURR
                 audio.play().catch(() => { });
             }
 
-            // Update player image
-            imageContainer.innerHTML = "";
-            const image = document.createElement("img");
-            image.src = `/static/images/${currentWinner}.png`;
-            image.alt = `Player with the most wins: ${currentWinner}`;
-            imageContainer.appendChild(image);
+            // Fetch the winner's selected image from settings
+            try {
+                const res = await fetch(`/api/get_winner_image?player=${winner}`);
+                const data = await res.json();
+                const imagePath = data.success ? data.image_path : `/static/images/${winner}.png`;
+                
+                // Update player image
+                imageContainer.innerHTML = "";
+                const image = document.createElement("img");
+                image.src = imagePath;
+                image.alt = `Player with the most wins: ${currentWinner}`;
+                imageContainer.appendChild(image);
+            } catch (error) {
+                // Fallback to default image
+                imageContainer.innerHTML = "";
+                const image = document.createElement("img");
+                image.src = `/static/images/${currentWinner}.png`;
+                image.alt = `Player with the most wins: ${currentWinner}`;
+                imageContainer.appendChild(image);
+            }
         }
     }
     function sortTable(columnIndex) {
@@ -376,15 +516,6 @@ winnerTitle.textContent = (savedSeason === "2") ? "CURRENT SON OF VENUS" : "CURR
 <body>
 
 
-    <div style="text-align: center; margin: 10px; padding-top: 60px;">
-        <label for="season-select">Choose Season:</label>
-<select id="season-select" class="season-select" onchange="handlePlayerSelection()">
-    <option value="1">Season of Mars</option>
-    <option value="2">Season of Venus</option>
-</select>
-
-
-
     <div class="container">
 
         <div class="plot-container">
@@ -393,28 +524,17 @@ winnerTitle.textContent = (savedSeason === "2") ? "CURRENT SON OF VENUS" : "CURR
             <img id="plot_image" alt="Accumulated Game Scores Plot" style="max-width: 100%; height: auto;" />
             <h2>Game scores</h2>
             <img id="plot_image2" alt="Game Scores Plot" style="max-width: 100%; height: auto;" />
-            <!-- Player Selection Form -->
-            <div class="stats-container" style="margin-top: 10px; width: 100%; text-align: center;">
-                <form id="player-selection-form" onsubmit="event.preventDefault(); handlePlayerSelection();">
-                    <h2> Select Players to Plot:</h2>
-                        <div class="checkbox-container">
-                            {% for player in players %}
-                            <label style="margin: 0 10px;">
-                                <input type="checkbox" name="players" value="{{ player }}" checked>
-                                {{ player }}
-                            </label>
-                            {% endfor %}
-                        </div>
-                        <button type="submit">Generate Plot</button>
-                </form>
-            </div>
         </div>
-        <div class="containerImageColumn" style="flex: 1; margin-left: 20px;">
+        <div class="containerImageColumn">
             <h2 id="current-winner-title">CURRENT SON</h2>
-            <div id="image-container" style="text-align: center;"></div>
-            <h2>
-                General Stats
-            </h2>
+            <div id="image-container"></div>
+        </div>
+    </div>
+
+    <div style="padding: 32px 24px; display: flex; flex-direction: column; align-items: center;">
+        <button id="select-players-btn" type="button" onclick="document.getElementById('player-dialog').showModal()" class="season-button" style="margin-bottom: 24px;">Select Players to Plot</button>
+        <h2 style="margin-top: 0; margin-bottom: 16px; text-align: center;">General Stats</h2>
+        <div style="width: 100%; max-width: 100%; overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr>
@@ -426,13 +546,37 @@ winnerTitle.textContent = (savedSeason === "2") ? "CURRENT SON OF VENUS" : "CURR
                         <th onclick="sortTable(5)">Std of Points</th>
                         <th onclick="sortTable(6)">Max Game Score</th>
                         <th onclick="sortTable(7)">Min Game Score</th>
+                        <th onclick="sortTable(8)" id="milestones-header" style="display:none;">Milestones</th>
+                        <th onclick="sortTable(9)" id="award-firsts-header" style="display:none;">Award 1st</th>
+                        <th onclick="sortTable(10)" id="award-seconds-header" style="display:none;">Award 2nd</th>
                     </tr>
                 </thead>
                 <tbody id="player_stats_table_body"></tbody>
             </table>
         </div>
     </div>
-    </div>
+
+    <!-- Player Selection Dialog -->
+    <dialog id="player-dialog" style="border-radius: 8px; border: none; padding: 24px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); max-width: 500px; width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="margin: 0; font-size: 1.5rem;">Select Players to Plot</h2>
+            <button onclick="document.getElementById('player-dialog').close()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">X</button>
+        </div>
+        <form id="player-selection-form" onsubmit="event.preventDefault(); handlePlayerSelection(); document.getElementById('player-dialog').close();">
+            <div class="checkbox-container" style="max-height: 300px; overflow-y: auto;">
+                {% for player in players %}
+                <label style="margin: 0 10px;">
+                    <input type="checkbox" name="players" value="{{ player }}" checked>
+                    {{ player }}
+                </label>
+                {% endfor %}
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end;">
+                <button type="button" onclick="document.getElementById('player-dialog').close()" style="background-color: #95a5a6; padding: 10px 20px;">Cancel</button>
+                <button type="submit" style="padding: 10px 20px;">Generate Plot</button>
+            </div>
+        </form>
+    </dialog>
 
 
 </body>

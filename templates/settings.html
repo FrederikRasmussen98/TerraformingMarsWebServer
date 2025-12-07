@@ -1,0 +1,537 @@
+{% extends "base.html" %}
+
+{% block title %}User Settings{% endblock %}
+
+{% block head %}
+<style>
+    .settings-container {
+        background: var(--container-bg);
+        border-radius: 15px;
+        padding: 40px;
+        max-width: 800px;
+        margin: 20px auto;
+        color: var(--container-text-color);
+    }
+
+    .settings-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+    }
+
+    .settings-section h3 {
+        color: var(--h2-text-color);
+        margin-bottom: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--h2-text-color);
+    }
+
+    .form-group input[type="file"] {
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid var(--navbar-link-color);
+        border-radius: 5px;
+        color: var(--container-text-color);
+        width: 100%;
+    }
+
+    .winner-image-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-top: 15px;
+        max-width: 800px;
+    }
+
+    .winner-image-option {
+        border: 3px solid transparent;
+        border-radius: 10px;
+        padding: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+
+    .winner-image-option:hover {
+        border-color: var(--navbar-link-color);
+        transform: scale(1.05);
+    }
+
+    .winner-image-option.selected {
+        border-color: var(--button-bg);
+        box-shadow: 0 0 15px var(--navbar-link-color);
+    }
+
+    .winner-image-option img {
+        width: 100%;
+        height: auto;
+        border-radius: 5px;
+    }
+
+    .winner-image-option p {
+        text-align: center;
+        margin-top: 8px;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 0, 0, 0.8);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+
+    .delete-btn:hover {
+        background: rgba(255, 0, 0, 1);
+        transform: scale(1.1);
+    }
+
+    .delete-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .slot-badge {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        background: var(--button-bg);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .image-limit-info {
+        color: var(--navbar-link-color);
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    .save-btn {
+        background: var(--button-bg);
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .save-btn:hover {
+        background: var(--button-hover);
+        transform: translateY(-2px);
+    }
+
+    .upload-preview {
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        display: none;
+    }
+
+    .upload-preview audio {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .success-message {
+        background: rgba(0, 255, 0, 0.2);
+        border: 2px solid #00ff00;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+        display: none;
+    }
+
+    .current-music {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .current-music audio {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .upload-status, .image-status {
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 5px;
+        display: none;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .upload-status.success, .image-status.success {
+        background: rgba(0, 255, 0, 0.2);
+        border: 2px solid #00ff00;
+        color: #00ff00;
+    }
+
+    .upload-status.error, .image-status.error {
+        background: rgba(255, 0, 0, 0.2);
+        border: 2px solid #ff4444;
+        color: #ff4444;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <h1>⚙️ Player Settings</h1>
+    <p>Welcome, <strong id="username-display">{{ username }}</strong>!</p>
+
+    <!-- Winner Music Upload -->
+    <div class="settings-section">
+        <h3>Victory Music</h3>
+        <p>Upload your custom victory music (MP3 format). This will play when you win a game.</p>
+        
+        <!-- Current Music Player -->
+        <div class="current-music" id="current-music">
+            <p><strong>Current victory music:</strong></p>
+            <audio id="current-music-player" controls>
+                <source src="/static/music/{{ username }}Win.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+        
+        <div class="form-group" style="margin-top: 20px;">
+            <label for="music-upload">Upload new MP3 file:</label>
+            <input type="file" id="music-upload" accept=".mp3,audio/mpeg">
+        </div>
+        <div class="upload-preview" id="music-preview">
+            <p>Preview new file:</p>
+            <audio id="music-preview-player" controls></audio>
+        </div>
+        <button class="save-btn" id="upload-music-btn">Upload Music</button>
+        <div class="upload-status" id="upload-status"></div>
+    </div>
+
+    <!-- Winner Image Selection -->
+    <div class="settings-section">
+        <h3>Victory Image</h3>
+        <p>Click an image to select it as your victory image. Auto-saves on selection.</p>
+        <p class="image-limit-info">You can upload up to 3 custom images. Click the Delete button to remove an image (except Default).</p>
+        
+        <div class="form-group">
+            <label for="image-upload">Upload new victory image (PNG/JPG):</label>
+            <input type="file" id="image-upload" accept=".png,.jpg,.jpeg,image/png,image/jpeg">
+        </div>
+        
+        <div class="winner-image-grid" id="image-grid">
+            <!-- Images will be loaded dynamically -->
+        </div>
+        <div class="image-status" id="image-status"></div>
+    </div>
+
+    {% if is_admin %}
+    <!-- Admin Settings Section -->
+    <div class="settings-section">
+        <h3>Admin Settings</h3>
+        <p>Administrative controls for game settings and features.</p>
+        
+        <div class="form-group">
+            <label for="fearless-draft-toggle">
+                <input type="checkbox" id="fearless-draft-toggle" style="transform: scale(1.5); cursor: pointer;">
+                <span style="margin-left: 10px; vertical-align: middle;">Enable Fearless Draft Mode</span>
+            </label>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: var(--navbar-link-color);">
+                When enabled, players can use the Fearless Draft feature during games.
+            </p>
+            <div style="margin-top: 10px;">
+                <label for="corps-left-input">Corporations Left:</label>
+                <input type="number" id="corps-left-input" min="0" max="100" value="0" style="width: 100px; padding: 8px; margin: 5px 0;">
+                <button id="save-fearless-btn" class="save-btn" style="margin-left: 10px;">Save Fearless Draft Settings</button>
+                <div id="fearless-status" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="success-message" id="success-message">
+        Settings saved successfully!
+    </div>
+</div>
+
+<script>
+const username = "{{ username }}";
+const musicUpload = document.getElementById('music-upload');
+const musicPreview = document.getElementById('music-preview');
+const musicPreviewPlayer = document.getElementById('music-preview-player');
+const uploadMusicBtn = document.getElementById('upload-music-btn');
+const uploadStatus = document.getElementById('upload-status');
+const currentMusicPlayer = document.getElementById('current-music-player');
+const imageGrid = document.getElementById('image-grid');
+const imageUpload = document.getElementById('image-upload');
+const imageStatus = document.getElementById('image-status');
+const successMessage = document.getElementById('success-message');
+
+let selectedImage = null;
+
+// Preview uploaded music
+musicUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const url = URL.createObjectURL(file);
+        musicPreviewPlayer.src = url;
+        musicPreview.style.display = 'block';
+    }
+});
+
+// Upload music with confirmation
+uploadMusicBtn.addEventListener('click', async () => {
+    const file = musicUpload.files[0];
+    if (!file) {
+        showStatus(uploadStatus, 'Please select an MP3 file first.', 'error');
+        return;
+    }
+
+    uploadMusicBtn.disabled = true;
+    uploadMusicBtn.textContent = 'Uploading...';
+
+    const formData = new FormData();
+    formData.append('music', file);
+
+    try {
+        const res = await fetch('/api/upload_music', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showStatus(uploadStatus, '✓ Music uploaded successfully! Reloading current music...', 'success');
+            // Reload the current music player
+            currentMusicPlayer.load();
+            // Clear file input
+            musicUpload.value = '';
+            musicPreview.style.display = 'none';
+        } else {
+            showStatus(uploadStatus, 'Upload failed: ' + (data.message || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        showStatus(uploadStatus, 'Upload failed: ' + error.message, 'error');
+    } finally {
+        uploadMusicBtn.disabled = false;
+        uploadMusicBtn.textContent = 'Upload Music';
+    }
+});
+
+// Upload new victory image
+imageUpload.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const res = await fetch('/api/upload_winner_image', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showStatus(imageStatus, '✓ Image uploaded successfully!', 'success');
+            // Reload images to show the new one
+            await loadWinnerImages();
+            imageUpload.value = '';
+        } else {
+            showStatus(imageStatus, 'Upload failed: ' + (data.message || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        showStatus(imageStatus, 'Upload failed: ' + error.message, 'error');
+    }
+});
+
+function showStatus(element, message, type) {
+    element.textContent = message;
+    element.className = `upload-status ${type}`;
+    element.style.display = 'block';
+    setTimeout(() => {
+        element.style.display = 'none';
+    }, 5000);
+}
+
+// Load available winner images
+async function loadWinnerImages() {
+    const res = await fetch('/api/get_winner_images');
+    const data = await res.json();
+    
+    imageGrid.innerHTML = '';
+    data.images.forEach(img => {
+        const div = document.createElement('div');
+        div.className = 'winner-image-option';
+        if (img.name === data.current) {
+            div.classList.add('selected');
+            selectedImage = img.name;
+        }
+        
+        // Create delete button (not for default image)
+        const canDelete = img.slot !== 0;
+        const deleteBtn = canDelete ? `
+            <button class="delete-btn" onclick="deleteImage(event, '${img.name}')" title="Delete image">Delete</button>
+        ` : '';
+        
+        // Create slot badge
+        const slotBadge = `<span class="slot-badge">${img.display_name}</span>`;
+        
+        div.innerHTML = `
+            ${slotBadge}
+            ${deleteBtn}
+            <img src="/static/images/${img.filename}" alt="${img.name}" onerror="this.style.display='none'">
+            <p>${img.display_name}</p>
+        `;
+        
+        div.addEventListener('click', async (e) => {
+            // Don't trigger if clicking delete button
+            if (e.target.classList.contains('delete-btn')) return;
+            
+            document.querySelectorAll('.winner-image-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+            selectedImage = img.name;
+            
+            // Auto-save on selection
+            const res = await fetch('/api/save_winner_image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: selectedImage })
+            });
+
+            const saveData = await res.json();
+            if (saveData.success) {
+                showStatus(imageStatus, '✓ Victory image saved!', 'success');
+            } else {
+                showStatus(imageStatus, 'Save failed: ' + (saveData.message || 'Unknown error'), 'error');
+            }
+        });
+        imageGrid.appendChild(div);
+    });
+}
+
+// Delete image function
+async function deleteImage(event, imageName) {
+    event.stopPropagation(); // Prevent triggering selection
+    
+    if (!confirm('Are you sure you want to delete this image?')) {
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/delete_winner_image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image_name: imageName })
+        });
+        
+        const data = await res.json();
+        if (data.success) {
+            showStatus(imageStatus, '✓ Image deleted successfully!', 'success');
+            await loadWinnerImages(); // Reload the grid
+        } else {
+            showStatus(imageStatus, 'Delete failed: ' + (data.message || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        showStatus(imageStatus, 'Delete failed: ' + error.message, 'error');
+    }
+}
+
+loadWinnerImages();
+
+// ===== FEARLESS DRAFT ADMIN SETTINGS =====
+// Only load fearless draft handlers if admin section exists
+const fearlessDraftToggle = document.getElementById('fearless-draft-toggle');
+if (fearlessDraftToggle) {
+    const corpsLeftInput = document.getElementById('corps-left-input');
+    const saveFearlessBtn = document.getElementById('save-fearless-btn');
+    const fearlessStatus = document.getElementById('fearless-status');
+
+    // Load fearless draft settings on page load
+    async function loadFearlessDraftSettings() {
+        try {
+            const response = await fetch('/api/get_fearless_draft');
+            if (!response.ok) throw new Error('Failed to load settings');
+            
+            const data = await response.json();
+            fearlessDraftToggle.checked = data.fearlessDraftOn || false;
+            corpsLeftInput.value = data.corpsLeft || 0;
+        } catch (error) {
+            console.error('Error loading fearless draft settings:', error);
+        }
+    }
+
+    // Save fearless draft settings
+    saveFearlessBtn.addEventListener('click', async () => {
+        const fearlessOn = fearlessDraftToggle.checked;
+        const corpsLeft = parseInt(corpsLeftInput.value) || 0;
+
+        // Validation
+        if (corpsLeft < 0 || corpsLeft > 100) {
+            showStatus(fearlessStatus, 'Corporations left must be between 0 and 100', 'error');
+            return;
+        }
+
+        saveFearlessBtn.disabled = true;
+        saveFearlessBtn.textContent = 'Saving...';
+
+        try {
+            const response = await fetch('/api/update_fearless_draft', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fearlessDraftOn: fearlessOn,
+                    corpsLeft: corpsLeft
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to save settings');
+            
+            const data = await response.json();
+            if (data.success) {
+                showStatus(fearlessStatus, '✓ Fearless draft settings saved!', 'success');
+            } else {
+                showStatus(fearlessStatus, 'Error: ' + (data.message || 'Unknown error'), 'error');
+            }
+        } catch (error) {
+            showStatus(fearlessStatus, 'Error saving settings: ' + error.message, 'error');
+        } finally {
+            saveFearlessBtn.disabled = false;
+            saveFearlessBtn.textContent = 'Save Fearless Draft Settings';
+        }
+    });
+
+    // Load settings when page loads
+    loadFearlessDraftSettings();
+}
+</script>
+{% endblock %}

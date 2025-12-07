@@ -156,34 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(spinBtn);
         container.appendChild(canvas);
 
-        // For Spin the Map: last played map
-        let lastPlayedDiv, markBtn;
-        if (wheelData.label === "Spin the Map") {
-            lastPlayedDiv = document.createElement('div');
-            lastPlayedDiv.style.marginTop = "8px";
-            lastPlayedDiv.style.fontWeight = "bold";
-            lastPlayedDiv.style.fontSize = "14px";
-            container.appendChild(lastPlayedDiv);
-
-            const storedMap = localStorage.getItem('lastPlayedMap');
-            if (storedMap) lastPlayedDiv.textContent = `Last played map: ${storedMap}`;
-
-            markBtn = document.createElement('button');
-            markBtn.textContent = "Mark as last played map";
-            markBtn.style.display = "none";
-            container.appendChild(markBtn);
-
-            markBtn.addEventListener('click', () => {
-                if (wheel.names.length === 1) {
-                    localStorage.setItem('lastPlayedMap', wheel.names[0]);
-                    lastPlayedDiv.textContent = `Last played map: ${wheel.names[0]}`;
-                    markBtn.style.display = "none";
-                }
-            });
-        }
-
-        wheelsContainer.appendChild(container);
-
         const ctx = canvas.getContext("2d");
 
         const wheel = {
@@ -238,6 +210,68 @@ document.addEventListener('DOMContentLoaded', () => {
             drawWheel();
             if (wheelData.label === "Spin the Map") updateMarkButton();
         }
+
+        // For Spin the Map: last played map with CSV tracking
+        let lastPlayedDiv, markBtn;
+        if (wheelData.label === "Spin the Map") {
+            lastPlayedDiv = document.createElement('div');
+            lastPlayedDiv.style.marginTop = "8px";
+            lastPlayedDiv.style.fontWeight = "bold";
+            lastPlayedDiv.style.fontSize = "14px";
+            container.appendChild(lastPlayedDiv);
+
+            markBtn = document.createElement('button');
+            markBtn.textContent = "Mark as last played map";
+            markBtn.style.display = "none";
+            container.appendChild(markBtn);
+
+            markBtn.addEventListener('click', () => {
+                if (wheel.names.length === 1) {
+                    const mapToMark = wheel.names[0];
+                    fetch('/api/update_map_history', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mapName: mapToMark })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            lastPlayedDiv.textContent = `Last played map: ${mapToMark}`;
+                            markBtn.style.display = "none";
+                            // Remove the marked map from available entries
+                            wheel.names = wheel.names.filter(map => map !== mapToMark);
+                            input.value = wheel.names.join(',');
+                            // Redraw wheel with remaining maps
+                            startWheel();
+                        } else {
+                            console.error('Failed to update map:', data.message);
+                            alert('Failed to mark map. Please try again.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error updating map history:', err);
+                        alert('Error: ' + err.message);
+                    });
+                }
+            });
+
+            // Load last played map and filter wheel
+            fetch('/api/get_last_map')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.lastMap) {
+                        lastPlayedDiv.textContent = `Last played map: ${data.lastMap}`;
+                        // Filter out last played map from wheel
+                        wheel.names = wheel.names.filter(map => map !== data.lastMap);
+                        input.value = wheel.names.join(',');
+                        // Redraw wheel after filtering
+                        startWheel();
+                    }
+                })
+                .catch(err => console.error('Error fetching last map:', err));
+        }
+
+        wheelsContainer.appendChild(container);
 
         // Load audio
 const wooAudio = new Audio('/static/music/WooooSoundEffect.mp3');

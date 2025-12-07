@@ -1,4 +1,48 @@
+# Virtual Environment
+venv/
+env/
 virEnv/
-results.json
+ENV/
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project Files
+results.json
+user_settings.json
+corps_left.json
+PLAYER_CREDENTIALS.txt
+
+# Secrets
+secrets.txt
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Build & Distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+.logs/

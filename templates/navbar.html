@@ -1,5 +1,25 @@
 <!-- templates/navbar.html -->
 <div class="navbar">
+    <!-- God Portrait Season Selector -->
+    <div class="god-portrait-selector" id="god-selector">
+        <img id="current-god-portrait" class="god-portrait-current" src="/static/images/mars_god.png" alt="Current God" title="Click to change season">
+        <span id="current-season-label" class="season-label">Season of Mars</span>
+        <div class="god-portrait-dropdown" id="god-dropdown">
+            <div class="god-portrait-option" data-season="1">
+                <img src="/static/images/mars_god.png" alt="Mars">
+                <span>Ares</span>
+            </div>
+            <div class="god-portrait-option" data-season="2">
+                <img src="/static/images/venus_god.png" alt="Venus">
+                <span>Aphrodite</span>
+            </div>
+            <div class="god-portrait-option" data-season="3">
+                <img src="/static/images/jupiter_god.png" alt="Jupiter">
+                <span>Zeus</span>
+            </div>
+        </div>
+    </div>
+
     <div class="navbar-buttons">
         <a href="/plots">Plots</a>
         <a href="/houseRules">House Rules</a>
@@ -9,8 +29,15 @@
 
     <div class="volume-control">
      
-        <button id="mute-btn">🔊</button>
+        <button id="mute-btn">Volume</button>
         <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+    </div>
+
+    <!-- Login/Settings Button -->
+    <div class="user-section" id="user-section">
+        <button id="login-btn" class="login-btn">Login</button>
+        <a href="/settings" id="settings-btn" class="settings-btn" style="display:none;" title="User Settings">⚙️</a>
+        <button id="logout-btn" class="logout-btn" style="display:none;">Logout</button>
     </div>
 
 <div id="fearless-counter" class="fearless-counter" style="display:none;">
@@ -18,12 +45,196 @@
     <div id="corps-edit" style="display:none; margin-top:5px;">
         <button id="corps-plus">+</button>
         <button id="corps-minus">-</button>
-        <button id="corps-done">✔</button>
+        <button id="corps-done">Done</button>
     </div>
 </div>
 </div>
 
+<!-- Login Modal -->
+<div id="login-modal" class="login-modal">
+    <div class="login-modal-content">
+        <span class="login-close">&times;</span>
+        <h2>Player Login</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="login-submit-btn">Login</button>
+            <div id="login-error" class="login-error" style="display:none;"></div>
+        </form>
+    </div>
+</div>
+
 <script>
+// Login Modal
+const loginBtn = document.getElementById('login-btn');
+const settingsBtn = document.getElementById('settings-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const loginModal = document.getElementById('login-modal');
+const loginClose = document.querySelector('.login-close');
+const loginForm = document.getElementById('login-form');
+const loginError = document.getElementById('login-error');
+
+// Check if user is logged in
+fetch('/api/check_login')
+    .then(res => res.json())
+    .then(data => {
+        if (data.logged_in) {
+            loginBtn.style.display = 'none';
+            settingsBtn.style.display = 'inline-block';
+            logoutBtn.style.display = 'inline-block';
+            logoutBtn.textContent = data.username;
+        }
+    });
+
+loginBtn.addEventListener('click', () => {
+    loginModal.style.display = 'flex';
+});
+
+loginClose.addEventListener('click', () => {
+    loginModal.style.display = 'none';
+    loginError.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === loginModal) {
+        loginModal.style.display = 'none';
+        loginError.style.display = 'none';
+    }
+});
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+    
+    const data = await res.json();
+    
+    if (data.success) {
+        loginModal.style.display = 'none';
+        loginBtn.style.display = 'none';
+        settingsBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'inline-block';
+        logoutBtn.textContent = username;
+        loginError.style.display = 'none';
+    } else {
+        loginError.textContent = data.message || 'Login failed';
+        loginError.style.display = 'block';
+    }
+});
+
+logoutBtn.addEventListener('click', async () => {
+    await fetch('/api/logout', { method: 'POST' });
+    loginBtn.style.display = 'inline-block';
+    settingsBtn.style.display = 'none';
+    logoutBtn.style.display = 'none';
+});
+
+// God Portrait Season Selector
+const godSelector = document.getElementById('god-selector');
+const currentGodPortrait = document.getElementById('current-god-portrait');
+const godDropdown = document.getElementById('god-dropdown');
+const godOptions = document.querySelectorAll('.god-portrait-option');
+
+const godImages = {
+    '1': '/static/images/mars_god.png',
+    '2': '/static/images/venus_god.png',
+    '3': '/static/images/jupiter_god.png'
+};
+
+const seasonLabels = {
+    '1': 'Season of Ares',
+    '2': 'Season of Aphrodite',
+    '3': 'Season of Zeus'
+};
+
+// Load saved season and update portrait
+const savedSeason = localStorage.getItem('selectedSeason') || '3';
+currentGodPortrait.src = godImages[savedSeason];
+const seasonLabel = document.getElementById('current-season-label');
+if (seasonLabel) {
+    seasonLabel.textContent = seasonLabels[savedSeason];
+}
+
+// Toggle dropdown
+godSelector.addEventListener('click', (e) => {
+    e.stopPropagation();
+    godDropdown.classList.toggle('show');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', () => {
+    godDropdown.classList.remove('show');
+});
+
+// Handle god portrait selection
+godOptions.forEach(option => {
+    option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const season = option.getAttribute('data-season');
+        
+        // Update portrait
+        currentGodPortrait.src = godImages[season];
+        
+        // Update season label
+        const seasonLabel = document.getElementById('current-season-label');
+        if (seasonLabel) {
+            seasonLabel.textContent = seasonLabels[season];
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('selectedSeason', season);
+        
+        // Apply theme immediately
+        document.body.classList.remove('venus-theme', 'jupiter-theme');
+        if (season === '2') {
+            document.body.classList.add('venus-theme');
+        } else if (season === '3') {
+            document.body.classList.add('jupiter-theme');
+        }
+        
+        // Update title if exists
+        const title = document.getElementById('current-winner-title');
+        if (title) {
+            if (season === '3') {
+                title.textContent = 'Zeus\'s chosen';
+            } else if (season === '2') {
+                title.textContent = 'Afrodite\'s chosen';
+            } else {
+                title.textContent = "Ares\'s chosen";
+            }
+        }
+        
+        // Update season select if exists
+        const seasonSelect = document.getElementById('season-select');
+        if (seasonSelect) {
+            seasonSelect.value = season;
+        }
+        
+        // Trigger plot refresh - check for fetchPlotData function on plots page
+        if (typeof fetchPlotData === 'function') {
+            const selectedPlayers = Array.from(document.querySelectorAll('input[name="players"]:checked'))
+                .map(input => input.value);
+            // Fetch with the new season
+            fetchPlotData(selectedPlayers, season);
+        }
+        
+        // Close dropdown
+        godDropdown.classList.remove('show');
+    });
+});
+
 let editMode = false;
 const counter = document.getElementById("fearless-counter");
 const corpsSpan = document.getElementById("corps-left");

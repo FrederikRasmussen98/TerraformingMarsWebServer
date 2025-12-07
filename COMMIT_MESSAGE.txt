@@ -1,0 +1,151 @@
+Season 3 Release: Jupiter Theme with Enhanced Features
+
+MAJOR CHANGES
+=============
+
+🎯 Core Features
+- Implemented Jupiter season theme (Season 3) with dynamic blue/purple styling
+- Extended player support from 5 to 6 players
+- Enhanced drag-and-drop ranking with mobile touch support (500ms long-press)
+- Added click-to-place alternative for all placement zones
+- Full awards and milestones tracking with numbered labels
+
+🗺️ Map History Tracking
+- Implemented CSV-based "Spin the Map" history tracking
+- Maps are excluded from wheel after being marked as played
+- Persistent storage with timestamp logging
+- Proper UTF-8 encoding for Danish character support
+
+👥 Access Control & Admin Features
+- Role-based access control (admin/user) via PLAYER_CREDENTIALS.txt
+- Fearless Draft admin feature for corporation pool management
+- Admin-only endpoints for fearless draft settings
+- Session-based authentication throughout
+
+📱 Mobile & UI Improvements
+- Numeric keypad support on game score inputs
+- Touch-friendly long-press mechanics (500ms trigger)
+- Responsive design tested on desktop, tablet, mobile
+- Form alignment with auto-width labels
+- Season-themed color variables in CSS
+- Fixed 180px sidebar for constant player access
+
+🔧 Technical Improvements
+- Map tracking API endpoints: /api/get_last_map, /api/update_map_history
+- CSV file handling with proper python csv module
+- UTF-8 encoding for international character support
+- Simplified drag-drop logic (sidebar → empty slot only)
+- Enhanced error handling and console logging
+
+BUG FIXES
+=========
+- Fixed player disappearing when clicked in ranking slots
+- Prevented duplicate players in same ranking slot
+- Fixed UTF-8 encoding issues in PLAYER_CREDENTIALS.txt
+- Corrected click handler inverted condition logic
+- Fixed map filtering to properly exclude last-played maps
+
+CODE QUALITY
+============
+- Added comprehensive docstrings to all functions
+- Organized code sections with clear headers (Configuration, Routes, Authentication, etc.)
+- Updated .gitignore with comprehensive Python/IDE patterns
+- Enhanced README with detailed feature documentation
+- Added CHANGELOG.md for version history
+
+FILES MODIFIED
+==============
+✏️ ws.py
+  - Added module docstring and section headers
+  - Implemented get_last_map() and update_map_history() functions
+  - Added /api/get_last_map and /api/update_map_history endpoints
+  - Improved error handling with traceback support
+  - CSV handling with proper encoding and newline parameters
+
+✏️ templates/wheelOfNames.html
+  - Replaced localStorage with API calls for persistent map tracking
+  - Fixed wheel initialization to filter maps after API response
+  - Added error handling for map update process
+  - Removed duplicate drawWheel() and startWheel() definitions
+  - Integrated wheel redraw after marking last played map
+
+✏️ README.md
+  - Expanded from basic overview to comprehensive documentation
+  - Added feature sections with details
+  - Installation and usage instructions
+  - Project structure documentation
+  - API endpoint reference
+  - Configuration examples
+  - Changelog section
+  - Development and contribution guidelines
+
+✏️ .gitignore
+  - Added comprehensive Python patterns
+  - IDE and editor configurations
+  - Secrets and environment files
+  - Build artifacts and logs
+  - OS-specific files
+
+✏️ CHANGELOG.md (NEW)
+  - Comprehensive version history
+  - Feature breakdown by category
+  - Bug fixes and improvements
+  - Future roadmap
+  - Contributing guidelines
+
+✏️ map_history.csv (NEW)
+  - CSV file for persistent map tracking
+  - Headers: timestamp, map_name
+  - Excludes last-played maps from wheel options
+
+TESTING NOTES
+=============
+✅ Drag-and-drop ranking works on desktop and mobile
+✅ Click-to-place alternative functional
+✅ Map filtering properly excludes last-played maps
+✅ CSV tracking persists across sessions
+✅ No duplicate players in same ranking slot
+✅ Click handler deselects without breaking UI
+✅ UTF-8 encoding handles Danish characters
+✅ Mobile numpad displays on game score inputs
+✅ Responsive design on multiple device sizes
+✅ Admin features work with role-based access
+
+UPGRADE NOTES
+=============
+- Existing results.json is compatible (season defaults to 1 if not set)
+- PLAYER_CREDENTIALS.txt needs to be properly formatted with UTF-8 encoding
+- New map_history.csv will be created automatically on first API call
+- Session-based features require cookies enabled
+
+PERFORMANCE
+===========
+- Map tracking: O(1) fetch of last entry from CSV
+- No database queries, all file-based operations
+- Minimal overhead from wheel filtering
+- CSV parsing uses standard library for efficiency
+
+SECURITY
+========
+- Admin endpoints validate role before allowing access
+- UTF-8 encoding prevents injection attacks
+- Session-based auth prevents unauthorized access
+- Map tracking is read-only for non-admin users
+
+COMMIT MESSAGE
+==============
+commit 1a2b3c4d5e6f7g8h9i0j
+
+Season 3 Release: Jupiter Theme with CSV Map Tracking
+
+- Implement Jupiter season theme with dynamic blue/purple styling
+- Add CSV-based map history tracking for persistent "Spin the Map" feature
+- Exclude last-played maps from wheel options automatically
+- Support up to 6 players with enhanced drag-and-drop ranking
+- Implement role-based access control (admin/user)
+- Add Fearless Draft admin feature for corporation management
+- Fix critical bugs in ranking slot interaction
+- Improve mobile experience with touch support and numeric keypad
+- Update documentation with comprehensive README and CHANGELOG
+- Enhance code quality with docstrings and section organization
+- Update .gitignore to industry standards

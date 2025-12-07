@@ -21,14 +21,15 @@
 document.addEventListener("DOMContentLoaded", () => {
     const seasonSelect = document.getElementById("season-select");
     
-    // Get saved season from localStorage or default to 1
-    const savedSeason = localStorage.getItem("selectedSeason") || "1";
+    // Get saved season from localStorage or default to 3 (Jupiter)
+    const savedSeason = localStorage.getItem("selectedSeason") || "3";
 
     // Apply theme based on saved season
+    document.body.classList.remove("venus-theme", "jupiter-theme");
     if (savedSeason === "2") {
         document.body.classList.add("venus-theme");
-    } else {
-        document.body.classList.remove("venus-theme");
+    } else if (savedSeason === "3") {
+        document.body.classList.add("jupiter-theme");
     }
 
     // If the select exists on this page, set its value
@@ -47,16 +48,23 @@ function handlePlayerSelection() {
 
     // Update the title based on season
     const title = document.getElementById("current-winner-title");
-    title.textContent = (season === "2") ? "CURRENT SON OF VENUS" : "CURRENT SON OF MARS";
+    if (season === "3") {
+        title.textContent = "Zeus's chosen";
+    } else if (season === "2") {
+        title.textContent = "Aphrodite's chosen";
+    } else {
+        title.textContent = "Ares's chosen";
+    }
 
     // Save season in localStorage
     localStorage.setItem("selectedSeason", season);
 
-    // Apply or remove Venus theme
+    // Apply theme based on season
+    document.body.classList.remove("venus-theme", "jupiter-theme");
     if (season === "2") {
         document.body.classList.add("venus-theme");
-    } else {
-        document.body.classList.remove("venus-theme");
+    } else if (season === "3") {
+        document.body.classList.add("jupiter-theme");
     }
 
     // Call your existing function to fetch plots
@@ -80,8 +88,8 @@ function handlePlayerSelection() {
         Your browser does not support the audio element.
     </audio>
 
-    <!-- ✅ Page content placeholder -->
-    <main>
+    <!-- ✅ Page content placeholder with consistent spacing -->
+    <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 

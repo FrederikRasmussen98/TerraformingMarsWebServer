@@ -69,6 +69,110 @@ body.venus-theme {
     --table-font-family: 'Arial', sans-serif;
 }
 
+body.jupiter-theme {
+    --body-bg: url('/static/images/jupiter.jpg');
+    --body-bg-color: #0d1b2a;
+    --container-bg: rgba(27, 38, 59, 0.85);
+    --button-bg: #0096c7;
+    --button-hover: #00b4d8;
+    --navbar-link-color: #ffd60a;
+    --navbar-link-hover: #e0e1dd;
+    --navbar-link-hover-shadow: 0 0 15px rgba(0, 150, 199, 0.7);
+    --container-text-color: #e0e1dd;
+    --dialog-color: #0077b6;
+    --container-box-shadow: 0 4px 15px rgba(0, 150, 199, 0.5);
+    --text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    --h1-text-color: #ffd60a;
+    --h2-text-color: #ffd60a;
+
+    /* Table overrides */
+    --table-text-color: var(--container-text-color);
+    --table-border-color: #0077b6;
+    --table-font-family: 'Arial', sans-serif;
+}
+
+/* Jupiter theme enhancements */
+body.jupiter-theme .container_simple,
+body.jupiter-theme .container {
+    animation: electric-glow 3s ease-in-out infinite;
+    position: relative;
+}
+
+body.jupiter-theme button,
+body.jupiter-theme #mute-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 150, 199, 0.3);
+}
+
+body.jupiter-theme button::before,
+body.jupiter-theme #mute-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 214, 10, 0.3), transparent);
+    transform: rotate(45deg);
+    animation: lightning-strike 5s infinite;
+}
+
+body.jupiter-theme button:hover,
+body.jupiter-theme #mute-btn:hover {
+    box-shadow: 0 0 20px rgba(0, 150, 199, 0.8), 0 0 40px rgba(255, 214, 10, 0.5);
+    transform: translateY(-2px);
+}
+
+body.jupiter-theme .navbar-buttons a {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+body.jupiter-theme .navbar-buttons a:hover {
+    animation: subtle-pulse 1s ease-in-out infinite;
+}
+
+body.jupiter-theme .navbar-buttons a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd60a, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+body.jupiter-theme .navbar-buttons a:hover::after {
+    opacity: 1;
+}
+
+body.jupiter-theme table th,
+body.jupiter-theme table td {
+    transition: all 0.2s ease;
+}
+
+body.jupiter-theme table tr:hover {
+    background-color: rgba(0, 150, 199, 0.2) !important;
+    box-shadow: 0 0 15px rgba(255, 214, 10, 0.3);
+}
+
+body.jupiter-theme .plot-container {
+    border: 2px solid rgba(0, 150, 199, 0.3);
+    animation: electric-glow 4s ease-in-out infinite;
+}
+
+body.jupiter-theme .plot-container img {
+    transition: transform 0.3s ease;
+}
+
+body.jupiter-theme .plot-container:hover img {
+    transform: scale(1.02);
+}
+
 /* === Global Styles === */
 body {
     background-image: var(--body-bg);
@@ -82,6 +186,12 @@ body {
     text-shadow: var(--text-shadow);
 }
 
+/* Main content wrapper with consistent spacing from navbar */
+.main-content {
+    padding-top: 100px;
+    min-height: 100vh;
+}
+
 #submit_button {
     font-family: var(--main-font);
 }
@@ -90,7 +200,7 @@ body {
     background: var(--container-bg);
     color: var(--container-text-color);
     border-radius: var(--container-radius);
-    margin: var(--container-margin-top) auto 0 auto;
+    margin: 20px auto 0 auto;
     padding: var(--container-padding);
     box-shadow: var(--container-box-shadow);
     max-width: 800px;
@@ -201,6 +311,86 @@ button:hover, #mute-btn:hover {
     z-index: 1000;
 }
 
+.god-portrait-selector {
+    position: absolute;
+    left: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.season-label {
+    color: var(--navbar-link-color);
+    font-weight: 600;
+    font-size: 1rem;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
+
+.god-portrait-current {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid var(--navbar-link-color);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 214, 10, 0.5);
+}
+
+.god-portrait-current:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 214, 10, 0.8);
+}
+
+.god-portrait-dropdown {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid var(--navbar-link-color);
+    border-radius: 10px;
+    padding: 10px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    min-width: 180px;
+}
+
+.god-portrait-dropdown.show {
+    display: flex;
+}
+
+.god-portrait-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.god-portrait-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.god-portrait-option img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--navbar-link-color);
+}
+
+.god-portrait-option span {
+    color: var(--navbar-link-color);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
 .navbar-buttons a {
     color: var(--navbar-link-color);
     text-decoration: none;
@@ -213,6 +403,144 @@ button:hover, #mute-btn:hover {
 .navbar-buttons a:hover {
     color: var(--navbar-link-hover);
     text-shadow: var(--navbar-link-hover-shadow);
+}
+
+/* User Section */
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: absolute;
+    right: 20px;
+}
+
+.login-btn, .logout-btn {
+    background: var(--button-bg);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover, .logout-btn:hover {
+    background: var(--button-hover);
+}
+
+.settings-btn {
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.settings-btn:hover {
+    transform: rotate(90deg) scale(1.2);
+}
+
+/* Login Modal */
+.login-modal {
+    display: none;
+    position: fixed;
+    z-index: 5000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.login-modal-content {
+    background: var(--container-bg);
+    padding: 40px;
+    border-radius: 15px;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.login-modal-content h2 {
+    color: var(--h1-text-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.login-close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 2rem;
+    color: var(--container-text-color);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.login-close:hover {
+    color: var(--button-bg);
+}
+
+.login-modal-content .form-group {
+    margin-bottom: 20px;
+}
+
+.login-modal-content .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--h2-text-color);
+    font-weight: 600;
+}
+
+.login-modal-content .form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--navbar-link-color);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--container-text-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.login-modal-content .form-group input:focus {
+    outline: none;
+    border-color: var(--button-bg);
+    box-shadow: 0 0 10px rgba(255, 214, 10, 0.3);
+}
+
+.login-submit-btn {
+    width: 100%;
+    background: var(--button-bg);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-submit-btn:hover {
+    background: var(--button-hover);
+    transform: translateY(-2px);
+}
+
+.login-error {
+    color: #ff4444;
+    background: rgba(255, 68, 68, 0.2);
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+    text-align: center;
 }
 
 /* Dialog */
@@ -408,6 +736,169 @@ button, .wheel-container a, .spin-link {
     padding: 12px 20px;
     font-size: 1rem;
 }
+
+/* === Responsive Design for Tablets and Mobile === */
+
+/* Tablet (iPad) - Portrait and Landscape */
+@media (max-width: 1024px) {
+    .main-content {
+        padding-top: 120px;
+    }
+    
+    .navbar {
+        padding: 12px 0;
+        gap: 8px;
+    }
+    
+    .god-portrait-selector {
+        position: relative;
+        left: 0;
+        margin: 0 auto;
+        order: -1;
+        width: 100%;
+        justify-content: center;
+        padding: 8px 0;
+    }
+    
+    .navbar-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .volume-control {
+        margin-top: 5px;
+    }
+    
+    .containerImageColumn {
+        margin-left: 0 !important;
+    }
+    
+    h1, h2 {
+        font-size: 2rem;
+    }
+    
+    .fearless-counter {
+        font-size: 1.1rem;
+        padding: 8px 15px;
+        bottom: 10px;
+        right: 10px;
+    }
+}
+
+/* Mobile Phones - Portrait */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 140px;
+    }
+    
+    .navbar {
+        padding: 10px 5px;
+        gap: 5px;
+    }
+    
+    .god-portrait-selector {
+        gap: 8px;
+    }
+    
+    .god-portrait-current {
+        width: 40px;
+        height: 40px;
+        border-width: 2px;
+    }
+    
+    .season-label {
+        font-size: 0.85rem;
+    }
+    
+    .god-portrait-dropdown {
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 160px;
+    }
+    
+    .navbar-buttons a {
+        font-size: 0.9rem;
+        padding: 4px 8px;
+    }
+    
+    .volume-control {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+    
+    #volume-slider {
+        width: 80px;
+    }
+    
+    h1, h2 {
+        font-size: 1.6rem;
+    }
+    
+    table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+    
+    table th, table td {
+        padding: 6px 4px;
+        font-size: 0.8rem;
+    }
+    
+    button {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .checkbox-container {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        font-size: 0.9rem;
+    }
+    
+    .fearless-counter {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        bottom: 5px;
+        right: 5px;
+    }
+}
+
+/* Small Mobile Phones */
+@media (max-width: 480px) {
+    .main-content {
+        padding-top: 160px;
+    }
+    
+    .god-portrait-current {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .season-label {
+        font-size: 0.75rem;
+    }
+    
+    .navbar-buttons a {
+        font-size: 0.8rem;
+        padding: 3px 6px;
+    }
+    
+    h1, h2 {
+        font-size: 1.4rem;
+    }
+    
+    table th, table td {
+        padding: 4px 2px;
+        font-size: 0.7rem;
+    }
+    
+    .checkbox-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 /* === Fearless Counter === */
 .fearless-counter {
     position: fixed;
@@ -439,4 +930,19 @@ body.venus-theme .fearless-counter {
     border-color: #8b6e4b;
     color: #4b2e05;
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+}
+
+/* Jupiter theme override */
+body.jupiter-theme .fearless-counter {
+    background: linear-gradient(135deg, #0d1b2a, #0077b6);
+    border: 2px solid #ffd60a;
+    color: #ffd60a;
+    box-shadow: 0 0 25px rgba(0, 150, 199, 0.6), 0 0 50px rgba(255, 214, 10, 0.3);
+    text-shadow: 0 0 10px rgba(255, 214, 10, 0.8), 0 0 20px rgba(0, 150, 199, 0.5);
+    animation: electric-glow 3s ease-in-out infinite;
+}
+
+body.jupiter-theme .fearless-counter:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 35px rgba(0, 150, 199, 0.9), 0 0 70px rgba(255, 214, 10, 0.5);
 }

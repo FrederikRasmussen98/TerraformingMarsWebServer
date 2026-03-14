@@ -25,7 +25,7 @@ jobs:
           password: ${{ secrets.SMTP_PASS }}
 
           subject: "GitHub Repo Update - ${{ github.repository }}"
-          to: "frederik.r.t.r@gmail.com, aske-alstrup@hotmail.com, askebest@gmail.com, Malthe@Raschke.dk, magnusbest@outlook.dk, mvr1@live.dk"
+          to: "frederik.r.t.r@gmail.com, aske-alstrup@hotmail.com, bestaske@gmail.com, Malthe@Raschke.dk, magnusbest@outlook.dk, mvr1@live.dk"
           from: "${{ secrets.SMTP_USER }}"
           body: |
             Repoet er blevet opdateret!

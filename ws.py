@@ -160,10 +160,19 @@ def generate_plot():
         if 'awards' in entry:
             for award in entry['awards']:
                 first_winner = award.get('first')
-                if first_winner and first_winner in players:
+                if isinstance(first_winner, list):
+                    for winner in first_winner:
+                        if winner in players:
+                            player_award_firsts[winner] += 1
+                elif first_winner and first_winner in players:
                     player_award_firsts[first_winner] += 1
+
                 second_winner = award.get('second')
-                if second_winner and second_winner in players:
+                if isinstance(second_winner, list):
+                    for winner in second_winner:
+                        if winner in players:
+                            player_award_seconds[winner] += 1
+                elif second_winner and second_winner in players:
                     player_award_seconds[second_winner] += 1
 
     # Accumulate scores and determine current winner
@@ -309,10 +318,11 @@ def log_result():
         milestone_winners = data.getlist("milestone_winner")
         milestones = []
         for i in range(len(milestone_names)):
-            if milestone_names[i] and milestone_winners[i]:
+            winner = milestone_winners[i] if i < len(milestone_winners) else ''
+            if milestone_names[i] and winner:
                 milestones.append({
                     "name": milestone_names[i],
-                    "winner": milestone_winners[i]
+                    "winner": winner
                 })
         
         # Get awards data

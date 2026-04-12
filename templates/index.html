@@ -1257,8 +1257,13 @@ function handleDrop(e) {
         // Clone the tile for the slot
         const clonedTile = draggedElement.cloneNode(true);
         clonedTile.classList.add('in-slot');
-        clonedTile.draggable = false;
-        clonedTile.style.cursor = 'default';
+        clonedTile.draggable = true;
+        clonedTile.style.cursor = 'move';
+        clonedTile.addEventListener('dragstart', (dragEvent) => {
+            draggedElement = clonedTile;
+            handleDragStart(dragEvent);
+        });
+        clonedTile.addEventListener('dragend', handleDragEnd);
         
         // Add player tile to slot
         slot.appendChild(clonedTile);
@@ -1333,6 +1338,22 @@ function createSlotInputs(slot, playerName) {
 
 function handleFormSubmit(event) {
     event.preventDefault();
+
+    // Ensure award winner counts always match current DOM state.
+    document.querySelectorAll('#awards-container .milestone-award-item').forEach(item => {
+        const awardId = item.dataset.id;
+        const firstZone = item.querySelector('.winner-drop-zone[data-place="first"]');
+        const secondZone = item.querySelector('.winner-drop-zone[data-place="second"]');
+
+        const firstCount = firstZone ? firstZone.querySelectorAll('.winner-tile').length : 0;
+        const secondCount = secondZone ? secondZone.querySelectorAll('.winner-tile').length : 0;
+
+        const firstCountInput = document.getElementById(`award-first-count-${awardId}`);
+        const secondCountInput = document.getElementById(`award-second-count-${awardId}`);
+
+        if (firstCountInput) firstCountInput.value = String(firstCount);
+        if (secondCountInput) secondCountInput.value = String(secondCount);
+    });
     
     // Collect data from ranking slots
     const slots = document.querySelectorAll('.ranking-slot.filled');
@@ -1424,6 +1445,7 @@ function getRankedPlayers() {
 
 function addMilestone() {
     milestoneCount++;
+    const milestoneId = milestoneCount;
     const container = document.getElementById('milestones-container');
     const players = getRankedPlayers();
     
@@ -1435,13 +1457,13 @@ function addMilestone() {
     
     const item = document.createElement('div');
     item.className = 'milestone-award-item';
-    item.dataset.id = milestoneCount;
+    item.dataset.id = milestoneId;
     
     let milestoneOptions = MILESTONES.map(m => `<option value="${m}">${m}</option>`).join('');
     
     item.innerHTML = `
         <div class="milestone-labels">
-            <label>${milestoneCount}. Milestone:</label>
+            <label>${milestoneId}. Milestone:</label>
             <label>Winner:</label>
         </div>
         <div class="milestone-content">
@@ -1450,16 +1472,16 @@ function addMilestone() {
                 ${milestoneOptions}
             </select>
             <div class="winner-drop-zone" 
-                 data-milestone-id="${milestoneCount}"
+                 data-milestone-id="${milestoneId}"
                  ondragover="handleWinnerDragOver(event)"
-                 ondrop="handleMilestoneWinnerDrop(event, ${milestoneCount})"
+                 ondrop="handleMilestoneWinnerDrop(event, ${milestoneId})"
                  ondragleave="handleWinnerDragLeave(event)"
                  style="width: 100%;">
                 <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Drag or click player</span>
             </div>
-            <input type="hidden" name="milestone_winner" id="milestone-winner-${milestoneCount}">
+            <input type="hidden" name="milestone_winner" id="milestone-winner-${milestoneId}">
         </div>
-        <button type="button" class="remove-btn" onclick="removeMilestone(${milestoneCount})" title="Remove Milestone">×</button>
+        <button type="button" class="remove-btn" onclick="removeMilestone(${milestoneId})" title="Remove Milestone">×</button>
     `;
     
     container.appendChild(item);
@@ -1473,7 +1495,7 @@ function addMilestone() {
                 stopPropagation: () => {},
                 currentTarget: milestoneZone
             };
-            handleMilestoneWinnerDrop(fakeEvent, milestoneCount);
+            handleMilestoneWinnerDrop(fakeEvent, milestoneId);
             draggedElement.classList.remove('selected-for-placement');
             draggedElement = null;
         }
@@ -1489,6 +1511,7 @@ function removeMilestone(id) {
 
 function addAward() {
     awardCount++;
+    const awardId = awardCount;
     const container = document.getElementById('awards-container');
     const players = getRankedPlayers();
     
@@ -1500,13 +1523,13 @@ function addAward() {
     
     const item = document.createElement('div');
     item.className = 'milestone-award-item';
-    item.dataset.id = awardCount;
+    item.dataset.id = awardId;
     
     let awardOptions = AWARDS.map(a => `<option value="${a}">${a}</option>`).join('');
     
     item.innerHTML = `
         <div class="milestone-labels">
-            <label>${awardCount}. Award:</label>
+            <label>${awardId}. Award:</label>
             <label>1st Place:</label>
             <label>2nd Place:</label>
         </div>
@@ -1516,27 +1539,27 @@ function addAward() {
                 ${awardOptions}
             </select>
             <div class="winner-drop-zone" 
-                 data-award-id="${awardCount}"
+                 data-award-id="${awardId}"
                  data-place="first"
                  ondragover="handleWinnerDragOver(event)"
-                 ondrop="handleAwardWinnerDrop(event, ${awardCount}, 'first')"
+                 ondrop="handleAwardWinnerDrop(event, ${awardId}, 'first')"
                  ondragleave="handleWinnerDragLeave(event)"
                  style="width: 100%;">
-                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Drag or click player(s) (max 2)</span>
+                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Drag or click player(s)</span>
             </div>
             <div class="winner-drop-zone" 
-                 data-award-id="${awardCount}"
+                 data-award-id="${awardId}"
                  data-place="second"
                  ondragover="handleWinnerDragOver(event)"
-                 ondrop="handleAwardWinnerDrop(event, ${awardCount}, 'second')"
+                 ondrop="handleAwardWinnerDrop(event, ${awardId}, 'second')"
                  ondragleave="handleWinnerDragLeave(event)"
                  style="width: 100%;">
-                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Drag or click player(s) (max 2)</span>
+                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Drag or click player(s)</span>
             </div>
         </div>
-        <button type="button" class="remove-btn" onclick="removeAward(${awardCount})" title="Remove Award">×</button>
-        <input type="hidden" name="award_first_count" id="award-first-count-${awardCount}" value="0">
-        <input type="hidden" name="award_second_count" id="award-second-count-${awardCount}" value="0">
+        <button type="button" class="remove-btn" onclick="removeAward(${awardId})" title="Remove Award">×</button>
+        <input type="hidden" name="award_first_count" id="award-first-count-${awardId}" value="0">
+        <input type="hidden" name="award_second_count" id="award-second-count-${awardId}" value="0">
     `;
     
     container.appendChild(item);
@@ -1553,7 +1576,7 @@ function addAward() {
                 stopPropagation: () => {},
                 currentTarget: firstZone
             };
-            handleAwardWinnerDrop(fakeEvent, awardCount, 'first');
+            handleAwardWinnerDrop(fakeEvent, awardId, 'first');
             draggedElement.classList.remove('selected-for-placement');
             draggedElement = null;
         }
@@ -1566,7 +1589,7 @@ function addAward() {
                 stopPropagation: () => {},
                 currentTarget: secondZone
             };
-            handleAwardWinnerDrop(fakeEvent, awardCount, 'second');
+            handleAwardWinnerDrop(fakeEvent, awardId, 'second');
             draggedElement.classList.remove('selected-for-placement');
             draggedElement = null;
         }
@@ -1649,12 +1672,7 @@ function handleAwardWinnerDrop(e, awardId, place) {
             playerName = draggedElement.textContent.trim();
         }
         
-        // Check current count
         const existingTiles = dropZone.querySelectorAll('.winner-tile');
-        if (existingTiles.length >= 2) {
-            showDialog('Maximum 2 winners allowed');
-            return false;
-        }
         
         // Check for duplicates
         let isDuplicate = false;
@@ -1705,7 +1723,7 @@ function removeWinnerTile(btn) {
         const placeholder = document.createElement('span');
         placeholder.style.color = 'rgba(255,255,255,0.5)';
         placeholder.style.fontSize = '0.85rem';
-        placeholder.textContent = isMilestone ? 'Drag player here' : 'Drag player(s) here (max 2)';
+        placeholder.textContent = isMilestone ? 'Drag player here' : 'Drag player(s) here';
         dropZone.appendChild(placeholder);
         
         // Update milestone hidden input
@@ -1725,33 +1743,15 @@ function removeWinnerTile(btn) {
 
 function updateAwardWinners(awardId, place) {
     const dropZone = document.querySelector(`.winner-drop-zone[data-award-id="${awardId}"][data-place="${place}"]`);
+    if (!dropZone) {
+        return;
+    }
+
     const tiles = dropZone.querySelectorAll('.winner-tile');
     const count = tiles.length;
     
     // Update hidden count
     document.getElementById(`award-${place}-count-${awardId}`).value = count;
-    
-    // If first place has multiple winners, disable second place
-    if (place === 'first') {
-        const secondRow = document.getElementById(`second-row-${awardId}`);
-        const secondDropZone = secondRow.querySelector('.winner-drop-zone');
-        
-        if (count > 1) {
-            secondRow.classList.add('disabled');
-            // Clear second place
-            const secondTiles = secondDropZone.querySelectorAll('.winner-tile');
-            secondTiles.forEach(t => t.remove());
-            secondDropZone.classList.remove('filled');
-            const placeholder = document.createElement('span');
-            placeholder.style.color = 'rgba(255,255,255,0.5)';
-            placeholder.style.fontSize = '0.85rem';
-            placeholder.textContent = 'Drag player(s) here (max 2)';
-            secondDropZone.appendChild(placeholder);
-            document.getElementById(`award-second-count-${awardId}`).value = '0';
-        } else {
-            secondRow.classList.remove('disabled');
-        }
-    }
 }
 </script>
 {% endblock %}

@@ -143,6 +143,50 @@ body.gaia-theme table tr:hover {
     background-color: rgba(46, 139, 87, 0.25) !important;
 }
 
+/* Readable tables on the blue themes: opaque dark cells, bright header, zebra rows */
+body.jupiter-theme table,
+body.gaia-theme table {
+    background-color: #0b1626;
+}
+
+body.jupiter-theme table td,
+body.gaia-theme table td {
+    background-color: #10233d;
+    color: #f4f8ff;
+    font-weight: 500;
+    text-shadow: none;
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.jupiter-theme table tr:nth-child(even) td,
+body.gaia-theme table tr:nth-child(even) td {
+    background-color: #17325a;
+}
+
+body.jupiter-theme table th {
+    background-color: #ffd60a;
+    color: #0b1626;
+    font-weight: 700;
+    text-shadow: none;
+    border-color: rgba(0, 0, 0, 0.35);
+}
+
+body.gaia-theme table th {
+    background-color: #a8e6cf;
+    color: #0a2a3d;
+    font-weight: 700;
+    text-shadow: none;
+    border-color: rgba(0, 0, 0, 0.25);
+}
+
+body.jupiter-theme table tr:hover td {
+    background-color: #1f4a80 !important;
+}
+
+body.gaia-theme table tr:hover td {
+    background-color: #1e6f5c !important;
+}
+
 body.gaia-theme .plot-container {
     border: 2px solid rgba(255, 255, 255, 0.3);
 }
@@ -469,142 +513,67 @@ button:hover, #mute-btn:hover {
     text-shadow: var(--navbar-link-hover-shadow);
 }
 
-/* User Section */
-.user-section {
+/* Fearless Draft Toggle */
+.fearless-toggle {
     display: flex;
     align-items: center;
     gap: 10px;
     position: absolute;
     right: 20px;
-}
-
-.login-btn, .logout-btn {
-    background: var(--button-bg);
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.login-btn:hover, .logout-btn:hover {
-    background: var(--button-hover);
-}
-
-.settings-btn {
-    font-size: 1.5rem;
-    text-decoration: none;
-    transition: transform 0.3s ease;
-}
-
-.settings-btn:hover {
-    transform: rotate(90deg) scale(1.2);
-}
-
-/* Login Modal */
-.login-modal {
-    display: none;
-    position: fixed;
-    z-index: 5000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    align-items: center;
-}
-
-.login-modal-content {
-    background: var(--container-bg);
-    padding: 40px;
-    border-radius: 15px;
-    max-width: 400px;
-    width: 90%;
-    position: relative;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.login-modal-content h2 {
-    color: var(--h1-text-color);
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.login-close {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-    font-size: 2rem;
-    color: var(--container-text-color);
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.login-close:hover {
-    color: var(--button-bg);
-}
-
-.login-modal-content .form-group {
-    margin-bottom: 20px;
-}
-
-.login-modal-content .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--h2-text-color);
+    user-select: none;
+    color: var(--navbar-link-color);
     font-weight: 600;
+    font-size: 0.9rem;
 }
 
-.login-modal-content .form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid var(--navbar-link-color);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--container-text-color);
-    font-size: 1rem;
-    box-sizing: border-box;
+.fearless-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
-.login-modal-content .form-group input:focus {
-    outline: none;
-    border-color: var(--button-bg);
-    box-shadow: 0 0 10px rgba(255, 214, 10, 0.3);
+.fearless-toggle-track {
+    position: relative;
+    width: 46px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
-.login-submit-btn {
-    width: 100%;
+.fearless-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    transition: transform 0.25s ease;
+}
+
+.fearless-toggle input:checked + .fearless-toggle-track {
     background: var(--button-bg);
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    box-shadow: 0 0 12px var(--button-bg);
 }
 
-.login-submit-btn:hover {
-    background: var(--button-hover);
-    transform: translateY(-2px);
+.fearless-toggle input:checked + .fearless-toggle-track .fearless-toggle-thumb {
+    transform: translateX(22px);
 }
 
-.login-error {
-    color: #ff4444;
-    background: rgba(255, 68, 68, 0.2);
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 15px;
-    text-align: center;
+.fearless-toggle input:focus-visible + .fearless-toggle-track {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+    .fearless-toggle {
+        position: static;
+    }
 }
 
 /* Dialog */

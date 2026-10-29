@@ -6,13 +6,12 @@ Features:
 - Multi-season support (Mars, Venus, Jupiter)
 - Drag-and-drop player ranking (desktop + mobile)
 - Awards and milestones tracking
-- Role-based access control
 - Map history tracking with CSV
 - Performance statistics and plotting
-- Admin features (fearless draft management)
+- Fearless draft toggle
 """
 
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory
 import json
 import os
 import csv
@@ -20,71 +19,18 @@ import matplotlib.pyplot as plt
 import io
 import base64
 import numpy as np
-from flask_bcrypt import Bcrypt
-from flask_wtf import FlaskForm
-from werkzeug.utils import secure_filename
-
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length
 
 from utils import load_json_file, save_json_file, load_corps_data, save_corps_data, update_corps_left, setup_plot_style
 
 # ===== Flask Application Configuration =====
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_change_this_in_production'
-bcrypt = Bcrypt(app)
 
 # ===== File & Folder Configuration =====
 DATA_FILE = "results.json"
 USER_SETTINGS_FILE = "user_settings.json"
-UPLOAD_FOLDER = "static/music"
-ALLOWED_EXTENSIONS = {'mp3'}
 IMAGE_UPLOAD_FOLDER = "static/images"
-ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['IMAGE_UPLOAD_FOLDER'] = IMAGE_UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(IMAGE_UPLOAD_FOLDER, exist_ok=True)
-
-# Function to parse PLAYER_CREDENTIALS.txt file
-def load_credentials_and_roles():
-    """Parse PLAYER_CREDENTIALS.txt and extract credentials and roles"""
-    credentials = {}
-    roles = {}
-    
-    credentials_file = 'PLAYER_CREDENTIALS.txt'
-    if os.path.exists(credentials_file):
-        try:
-            with open(credentials_file, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                current_username = None
-                current_password = None
-                
-                for line in lines:
-                    line = line.strip()
-                    
-                    if line.startswith('Username:'):
-                        current_username = line.replace('Username:', '').strip()
-                    elif line.startswith('Password:'):
-                        current_password = line.replace('Password:', '').strip()
-                        if current_username:
-                            credentials[current_username] = current_password
-                    elif line.startswith('Role:'):
-                        current_role = line.replace('Role:', '').strip()
-                        if current_username:
-                            roles[current_username] = current_role
-        except Exception as e:
-            print(f"Error parsing credentials file: {e}")
-    
-    return credentials, roles
-
-# Load credentials and roles from file
-PLAYER_CREDENTIALS, PLAYER_ROLES = load_credentials_and_roles()
-
-# Hash passwords on first load
-users = {username: bcrypt.generate_password_hash(password).decode('utf-8') 
-         for username, password in PLAYER_CREDENTIALS.items()}
 
 # Load data
 results = load_json_file(DATA_FILE, [])
@@ -475,65 +421,6 @@ def houseRules():
 def wheelOfNames():
     return render_template('wheelOfNames.html')  # Replace with your Hall of Fame page HTML
 
-# === Authentication Routes ===
-
-@app.route('/api/check_login', methods=['GET'])
-def check_login():
-    if 'username' in session:
-        return jsonify({'logged_in': True, 'username': session['username']})
-    return jsonify({'logged_in': False})
-
-@app.route('/api/login', methods=['POST'])
-def api_login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    
-    if username in users and bcrypt.check_password_hash(users[username], password):
-        session['username'] = username
-        session['role'] = PLAYER_ROLES.get(username, 'user')
-        return jsonify({'success': True, 'username': username, 'role': session['role']})
-    return jsonify({'success': False, 'message': 'Invalid username or password'})
-
-@app.route('/api/logout', methods=['POST'])
-def api_logout():
-    session.pop('username', None)
-    return jsonify({'success': True})
-
-@app.route('/settings')
-def settings():
-    if 'username' not in session:
-        return redirect(url_for('home'))
-    role = session.get('role', 'user')
-    return render_template('settings.html', username=session['username'], role=role, is_admin=role=='admin')
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def allowed_image_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
-
-@app.route('/api/upload_music', methods=['POST'])
-def upload_music():
-    if 'username' not in session:
-        return jsonify({'success': False, 'message': 'Not logged in'}), 401
-    
-    if 'music' not in request.files:
-        return jsonify({'success': False, 'message': 'No file uploaded'}), 400
-    
-    file = request.files['music']
-    if file.filename == '':
-        return jsonify({'success': False, 'message': 'No file selected'}), 400
-    
-    if file and allowed_file(file.filename):
-        username = session['username']
-        filename = f"{username}Win.mp3"
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        return jsonify({'success': True, 'message': 'Music uploaded successfully'})
-    
-    return jsonify({'success': False, 'message': 'Invalid file type'}), 400
-
 @app.route('/api/get_winner_image', methods=['GET'])
 def get_winner_image():
     """Get the selected winner image path for a specific player (public endpoint)"""
@@ -559,215 +446,21 @@ def get_winner_image():
     
     return jsonify({'success': True, 'image_path': image_path})
 
-@app.route('/api/get_winner_images', methods=['GET'])
-def get_winner_images():
-    if 'username' not in session:
-        return jsonify({'success': False, 'message': 'Not logged in'}), 401
-    
-    username = session['username']
-    
-    # Get user settings
-    user_settings = load_json_file(USER_SETTINGS_FILE, {})
-    current_image = user_settings.get(username, {}).get('winner_image', username)
-    
-    # List available images in slots (3 max)
-    images = []
-    image_dir = app.config['IMAGE_UPLOAD_FOLDER']
-    
-    # Check slots 1-3
-    for slot in range(1, 4):
-        slot_name = f"{username}_slot{slot}"
-        # Check for .png, .jpg, .jpeg
-        for ext in ['.png', '.jpg', '.jpeg']:
-            filepath = os.path.join(image_dir, slot_name + ext)
-            if os.path.exists(filepath):
-                images.append({
-                    'name': slot_name,
-                    'filename': slot_name + ext,
-                    'slot': slot,
-                    'display_name': f'Image {slot}'
-                })
-                break
-    
-    # Add default image if exists
-    default_img = f"{username}.png"
-    if os.path.exists(os.path.join(image_dir, default_img)):
-        images.insert(0, {
-            'name': username,
-            'filename': default_img,
-            'slot': 0,
-            'display_name': 'Default'
-        })
-    
-    return jsonify({'images': images, 'current': current_image})
-
-@app.route('/api/upload_winner_image', methods=['POST'])
-def upload_winner_image():
-    if 'username' not in session:
-        return jsonify({'success': False, 'message': 'Not logged in'}), 401
-    
-    if 'image' not in request.files:
-        return jsonify({'success': False, 'message': 'No file uploaded'}), 400
-    
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'success': False, 'message': 'No file selected'}), 400
-    
-    if file and allowed_image_file(file.filename):
-        username = session['username']
-        image_dir = app.config['IMAGE_UPLOAD_FOLDER']
-        
-        # Find first available slot (1-3)
-        available_slot = None
-        for slot in range(1, 4):
-            slot_name = f"{username}_slot{slot}"
-            # Check if slot is empty
-            slot_exists = False
-            for ext in ['.png', '.jpg', '.jpeg']:
-                if os.path.exists(os.path.join(image_dir, slot_name + ext)):
-                    slot_exists = True
-                    break
-            if not slot_exists:
-                available_slot = slot
-                break
-        
-        if available_slot is None:
-            return jsonify({'success': False, 'message': 'Maximum 3 images allowed. Delete one first.'}), 400
-        
-        # Get file extension and save to slot
-        ext = file.filename.rsplit('.', 1)[1].lower()
-        filename = f"{username}_slot{available_slot}.{ext}"
-        filepath = os.path.join(image_dir, filename)
-        file.save(filepath)
-        
-        # Auto-select the newly uploaded image
-        user_settings = load_json_file(USER_SETTINGS_FILE, {})
-        if username not in user_settings:
-            user_settings[username] = {}
-        image_name = filename.rsplit('.', 1)[0]  # Remove extension for name
-        user_settings[username]['winner_image'] = image_name
-        save_json_file(USER_SETTINGS_FILE, user_settings)
-        
-        return jsonify({'success': True, 'message': f'Image uploaded to slot {available_slot}', 'filename': filename, 'slot': available_slot})
-    
-    return jsonify({'success': False, 'message': 'Invalid file type. Use PNG, JPG, or JPEG'}), 400
-
-@app.route('/api/save_winner_image', methods=['POST'])
-def save_winner_image():
-    if 'username' not in session:
-        return jsonify({'success': False, 'message': 'Not logged in'}), 401
-    
-    data = request.get_json()
-    image_name = data.get('image')
-    username = session['username']
-    
-    # Load and update settings
-    user_settings = load_json_file(USER_SETTINGS_FILE, {})
-    if username not in user_settings:
-        user_settings[username] = {}
-    user_settings[username]['winner_image'] = image_name
-    save_json_file(USER_SETTINGS_FILE, user_settings)
-    
-    return jsonify({'success': True, 'message': 'Winner image saved'})
-
-@app.route('/api/delete_winner_image', methods=['POST'])
-def delete_winner_image():
-    if 'username' not in session:
-        return jsonify({'success': False, 'message': 'Not logged in'}), 401
-    
-    data = request.get_json()
-    image_name = data.get('image_name')
-    
-    if not image_name:
-        return jsonify({'success': False, 'message': 'Image name required'}), 400
-    
-    username = session['username']
-    
-    # Don't allow deleting default image
-    if image_name == username:
-        return jsonify({'success': False, 'message': 'Cannot delete default image'}), 400
-    
-    image_dir = app.config['IMAGE_UPLOAD_FOLDER']
-    
-    # Try to find and delete the file
-    deleted = False
-    for ext in ['.png', '.jpg', '.jpeg']:
-        filepath = os.path.join(image_dir, image_name + ext)
-        if os.path.exists(filepath):
-            os.remove(filepath)
-            deleted = True
-            break
-    
-    if not deleted:
-        return jsonify({'success': False, 'message': 'Image not found'}), 404
-    
-    # If the deleted image was selected, revert to default
-    user_settings = load_json_file(USER_SETTINGS_FILE, {})
-    if username in user_settings and user_settings[username].get('winner_image') == image_name:
-        user_settings[username]['winner_image'] = username
-        save_json_file(USER_SETTINGS_FILE, user_settings)
-    
-    return jsonify({'success': True, 'message': 'Image deleted successfully'})
-
-
-
 @app.route('/result.json')
 def serve_json():
     return send_from_directory('.', 'results.json')  # Serve result.json from the root folder
 
-# === FEARLESS DRAFT ADMIN ROUTES ===
+# === FEARLESS DRAFT ===
 
-@app.route('/api/get_fearless_draft', methods=['GET'])
-def get_fearless_draft():
-    """Get current fearless draft settings (admin only)"""
-    if 'username' not in session:
-        return jsonify({'success': False, 'message': 'Not logged in'}), 401
-    
-    role = session.get('role', 'user')
-    if role != 'admin':
-        return jsonify({'success': False, 'message': 'Admin access required'}), 403
-    
+@app.route('/api/set_fearless_draft', methods=['POST'])
+def set_fearless_draft():
+    """Enable or disable fearless draft mode"""
     try:
+        data = request.get_json() or {}
         corps_data = load_corps_data()
-        return jsonify({
-            'success': True,
-            'fearlessDraftOn': corps_data.get('fearlessDraftOn', False),
-            'corpsLeft': corps_data.get('corpsLeft', 0)
-        })
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-@app.route('/api/update_fearless_draft', methods=['POST'])
-def update_fearless_draft():
-    """Update fearless draft settings (admin only)"""
-    if 'username' not in session:
-        return jsonify({'success': False, 'message': 'Not logged in'}), 401
-    
-    role = session.get('role', 'user')
-    if role != 'admin':
-        return jsonify({'success': False, 'message': 'Admin access required'}), 403
-    
-    try:
-        data = request.get_json()
-        fearless_on = data.get('fearlessDraftOn', False)
-        corps_left = int(data.get('corpsLeft', 0))
-        
-        # Validate corps_left
-        if corps_left < 0 or corps_left > 100:
-            return jsonify({'success': False, 'message': 'Corporations left must be between 0 and 100'}), 400
-        
-        # Load and update corps data
-        corps_data = load_corps_data()
-        corps_data['fearlessDraftOn'] = fearless_on
-        corps_data['corpsLeft'] = corps_left
+        corps_data['fearlessDraftOn'] = bool(data.get('fearlessDraftOn', False))
         save_corps_data(corps_data)
-        
-        return jsonify({
-            'success': True,
-            'message': 'Fearless draft settings updated',
-            'fearlessDraftOn': fearless_on,
-            'corpsLeft': corps_left
-        })
+        return jsonify({'success': True, 'fearlessDraftOn': corps_data['fearlessDraftOn']})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 

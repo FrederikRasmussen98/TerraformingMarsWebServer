@@ -1,5 +1,3 @@
 Flask
-flask-bcrypt
-flask-wtf
 matplotlib
 numpy

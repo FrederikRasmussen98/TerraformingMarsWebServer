@@ -20,73 +20,212 @@ main {
 }
 
 .wheel-container {
-    width: 350px;
+    --accent: var(--button-bg, #ff7043);
+    --accent-hover: var(--button-hover, #ff8a65);
+    width: 380px;
+    max-width: calc(100vw - 32px);
     margin: 10px;
+    padding: 22px 20px 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    background: #222;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    align-items: stretch;
+    gap: 14px;
     position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    background:
+        linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 40%),
+        var(--container-bg, rgba(25, 25, 30, 0.85));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.wheel-container:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.wheel-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.wheel-container h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--h2-text-color, #fff);
+    text-shadow: none;
+}
+
+.wheel-count {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+}
+
+.wheel-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wheel-field label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .wheel-container input {
-    width: 90%;
-    padding: 6px;
-    margin-bottom: 8px;
-    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wheel-container input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+.wheel-stage {
+    display: flex;
+    justify-content: center;
+}
+
+.wheel-stage canvas {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    aspect-ratio: 1;
     border: none;
-    font-size: 14px;
+    border-radius: 0;
+    background: none;
+    filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.5));
+    cursor: pointer;
 }
 
 .wheel-container button {
-    margin: 5px;
-    padding: 8px 12px;
-    font-size: 14px;
-    border-radius: 5px;
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     border: none;
+    border-radius: 12px;
     cursor: pointer;
-    background: #ff7043;
-    color: white;
-    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
 
-canvas {
-    margin: 10px 0;
-    border: 3px solid #555;
-    border-radius: 50%;
-    background: url('/static/images/mars.jpg') no-repeat center center;
-    background-size: cover;
+.wheel-container button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
 }
 
-/* Dialog directly on wheel */
+.wheel-container button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.wheel-container button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+}
+
+.wheel-container button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.wheel-container button.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+}
+
+.last-played {
+    font-size: 0.85rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    min-height: 1.1em;
+}
+
+.last-played:empty {
+    display: none;
+}
+
+/* Winner overlay on the wheel card */
 .winnerDialog {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(51,51,51,0.95);
-    padding: 20px 30px;
-    border-radius: 12px;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 24px;
     text-align: center;
-    color: white;
-    font-size: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+    background: rgba(8, 10, 16, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 10;
+    animation: winnerFade 0.3s ease both;
 }
 
-.winnerDialog button {
-    margin: 5px;
-    padding: 6px 12px;
-    font-size: 14px;
-    border-radius: 8px;
-    border: none;
-    background: #ff7043;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
+.winnerDialog .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.winnerDialog .winner-name {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    word-break: break-word;
+    padding-bottom: 6px;
+    border-bottom: 3px solid var(--winner-color, #ffd54f);
+    animation: winnerPop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.winnerDialog .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+@keyframes winnerFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes winnerPop {
+    from { transform: scale(0.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wheel-container, .winnerDialog, .winner-name { animation: none; transition: none; }
 }
 </style>
 {% endblock %}
@@ -111,13 +250,14 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             label: "Spin the Names",
-            entries: ["Kongen","Gaystrup","Magnus","Microben","Best"],
+            entries: ["Kongen","Gaystrup","Magnus","Microben","Best","Nooben"],
             colors: {
                 "Kongen": "green",
                 "Gaystrup": "red",
                 "Magnus": "yellow",
-                "Microben": "gray",
-                "Best": "blue"
+                "Microben": "#3b1a5a",
+                "Best": "blue",
+                "Nooben": "black"
             }
         },
         {
@@ -137,25 +277,50 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.createElement('section');
         container.className = 'wheel-container';
 
+        const inputId = 'wheel-input-' + wheelsContainer.children.length;
+
+        const header = document.createElement('div');
+        header.className = 'wheel-header';
         const title = document.createElement('h3');
         title.textContent = wheelData.label;
+        const countBadge = document.createElement('span');
+        countBadge.className = 'wheel-count';
+        header.appendChild(title);
+        header.appendChild(countBadge);
 
+        const field = document.createElement('div');
+        field.className = 'wheel-field';
+        const inputLabel = document.createElement('label');
+        inputLabel.htmlFor = inputId;
+        inputLabel.textContent = 'Entries (comma separated)';
         const input = document.createElement('input');
+        input.id = inputId;
         input.value = wheelData.entries.join(',');
+        field.appendChild(inputLabel);
+        field.appendChild(input);
 
+        // Canvas is rendered at device pixel ratio for crisp edges
+        const SIZE = 360;
+        const dpr = window.devicePixelRatio || 1;
         const canvas = document.createElement('canvas');
-        canvas.width = 350;
-        canvas.height = 350;
+        canvas.width = SIZE * dpr;
+        canvas.height = SIZE * dpr;
+        canvas.setAttribute('role', 'img');
+        canvas.setAttribute('aria-label', wheelData.label + ' wheel. Click the center to spin.');
+        const stage = document.createElement('div');
+        stage.className = 'wheel-stage';
+        stage.appendChild(canvas);
 
         const spinBtn = document.createElement('button');
         spinBtn.textContent = "Spin";
 
-        container.appendChild(title);
-        container.appendChild(input);
+        container.appendChild(header);
+        container.appendChild(field);
+        container.appendChild(stage);
         container.appendChild(spinBtn);
-        container.appendChild(canvas);
 
         const ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
 
         const wheel = {
             names: [...wheelData.entries],
@@ -165,47 +330,162 @@ document.addEventListener('DOMContentLoaded', () => {
             winningIndex: null
         };
 
+        // Normalise any CSS colour to [r,g,b]
+        function toRgb(color) {
+            ctx.save();
+            ctx.fillStyle = '#000';
+            ctx.fillStyle = color;
+            const hex = ctx.fillStyle;
+            ctx.restore();
+            return [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+        }
+
+        function shade([r, g, b], amt) {
+            const f = v => Math.max(0, Math.min(255, Math.round(v + (amt >= 0 ? (255 - v) : v) * amt)));
+            return `rgb(${f(r)},${f(g)},${f(b)})`;
+        }
+
         function drawWheel() {
-            const outsideRadius = 150;
-            const textRadius = 110;
-            const insideRadius = 50;
-            const arc = Math.PI * 2 / wheel.names.length;
+            const cx = SIZE / 2, cy = SIZE / 2;
+            const rimRadius = 174;
+            const outsideRadius = 152;
+            const insideRadius = 44;
+            const n = wheel.names.length;
+            const arc = Math.PI * 2 / n;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, SIZE, SIZE);
 
-            for (let i = 0; i < wheel.names.length; i++) {
-                const angle = wheel.startAngle + i * arc;
-                const color = wheel.colors[wheel.names[i]] || `hsl(${i * 360 / wheel.names.length}, 70%, 60%)`;
-                ctx.fillStyle = color;
+            // Outer rim
+            const rim = ctx.createRadialGradient(cx, cy, outsideRadius, cx, cy, rimRadius);
+            rim.addColorStop(0, '#1a1a1f');
+            rim.addColorStop(0.5, '#4a4a55');
+            rim.addColorStop(1, '#14141a');
+            ctx.beginPath();
+            ctx.arc(cx, cy, rimRadius, 0, Math.PI * 2);
+            ctx.fillStyle = rim;
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+            ctx.stroke();
+
+            // Rim lights, chasing while spinning
+            const bulbs = 24;
+            for (let i = 0; i < bulbs; i++) {
+                const a = (i / bulbs) * Math.PI * 2;
+                const lit = wheel.spinning ? ((i + Math.floor(wheel.startAngle * 4)) % 2 === 0) : i % 2 === 0;
+                const bx = cx + Math.cos(a) * 163;
+                const by = cy + Math.sin(a) * 163;
                 ctx.beginPath();
-                ctx.arc(canvas.width/2, canvas.height/2, outsideRadius, angle, angle + arc, false);
-                ctx.arc(canvas.width/2, canvas.height/2, insideRadius, angle + arc, angle, true);
+                ctx.arc(bx, by, 3.2, 0, Math.PI * 2);
+                ctx.fillStyle = lit ? '#ffe082' : '#5a5030';
+                ctx.shadowColor = lit ? '#ffd54f' : 'transparent';
+                ctx.shadowBlur = lit ? 8 : 0;
                 ctx.fill();
+                ctx.shadowBlur = 0;
+            }
 
+            // Segments
+            for (let i = 0; i < n; i++) {
+                const angle = wheel.startAngle + i * arc;
+                const base = toRgb(wheel.colors[wheel.names[i]] || `hsl(${i * 360 / n}, 65%, 52%)`);
+                const grad = ctx.createRadialGradient(cx, cy, insideRadius, cx, cy, outsideRadius);
+                grad.addColorStop(0, shade(base, -0.25));
+                grad.addColorStop(1, shade(base, 0.12));
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, outsideRadius, angle, angle + arc);
+                ctx.closePath();
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+                ctx.stroke();
+
+                // Label: reads outward from the hub, auto-shrunk to fit
+                const lum = (0.299 * base[0] + 0.587 * base[1] + 0.114 * base[2]) / 255;
+                const label = wheel.names[i];
+                const maxWidth = outsideRadius - insideRadius - 26;
+                let fontSize = n > 12 ? 13 : 17;
                 ctx.save();
-                ctx.fillStyle = "#000";
-                ctx.font = "bold 16px Arial";
-                ctx.translate(
-                    canvas.width/2 + Math.cos(angle + arc/2) * textRadius,
-                    canvas.height/2 + Math.sin(angle + arc/2) * textRadius
-                );
-                ctx.rotate(angle + arc/2 + Math.PI/2);
-                ctx.fillText(wheel.names[i], -ctx.measureText(wheel.names[i]).width/2, 0);
+                ctx.translate(cx, cy);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                do {
+                    ctx.font = `700 ${fontSize}px "Segoe UI", Arial, sans-serif`;
+                    fontSize--;
+                } while (ctx.measureText(label).width > maxWidth && fontSize > 8);
+                ctx.fillStyle = lum > 0.6 ? '#111' : '#fff';
+                ctx.shadowColor = lum > 0.6 ? 'transparent' : 'rgba(0,0,0,0.6)';
+                ctx.shadowBlur = 3;
+                ctx.fillText(label, outsideRadius - 14, 0);
                 ctx.restore();
             }
 
-            ctx.fillStyle = "red";
+            // Highlight the winning segment
+            if (!wheel.spinning && wheel.winningIndex !== null && wheel.winningIndex < n) {
+                const a0 = wheel.startAngle + wheel.winningIndex * arc;
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, outsideRadius, a0, a0 + arc);
+                ctx.closePath();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#fff';
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 16;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Hub
+            const hub = ctx.createRadialGradient(cx - 10, cy - 12, 4, cx, cy, insideRadius);
+            hub.addColorStop(0, '#6a6a76');
+            hub.addColorStop(1, '#16161c');
             ctx.beginPath();
-            ctx.moveTo(canvas.width/2 - 10, canvas.height/2 - (outsideRadius + 20));
-            ctx.lineTo(canvas.width/2 + 10, canvas.height/2 - (outsideRadius + 20));
-            ctx.lineTo(canvas.width/2, canvas.height/2 - (outsideRadius - 5));
+            ctx.arc(cx, cy, insideRadius - 4, 0, Math.PI * 2);
+            ctx.fillStyle = hub;
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 12;
             ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#ffd54f';
+            ctx.stroke();
+            ctx.fillStyle = '#ffe082';
+            ctx.font = '700 13px "Segoe UI", Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('SPIN', cx, cy + 1);
+
+            // Pointer
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx - 13, cy - rimRadius - 6);
+            ctx.lineTo(cx + 13, cy - rimRadius - 6);
+            ctx.lineTo(cx, cy - outsideRadius + 8);
+            ctx.closePath();
+            const ptr = ctx.createLinearGradient(0, cy - rimRadius, 0, cy - outsideRadius);
+            ptr.addColorStop(0, '#ffe082');
+            ptr.addColorStop(1, '#ff8f00');
+            ctx.fillStyle = ptr;
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#fff';
+            ctx.stroke();
+            ctx.restore();
         }
 
         function startWheel() {
             const inputVal = input.value;
             wheel.names = inputVal.split(',').map(n => n.trim()).filter(n => n !== "");
             if (wheel.names.length === 0) wheel.names.push("Winner");
+            wheel.winningIndex = null;
+            countBadge.textContent = `${wheel.names.length} ${wheel.names.length === 1 ? 'entry' : 'entries'}`;
             drawWheel();
             if (wheelData.label === "Spin the Map") updateMarkButton();
         }
@@ -214,12 +494,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastPlayedDiv, markBtn;
         if (wheelData.label === "Spin the Map") {
             lastPlayedDiv = document.createElement('div');
-            lastPlayedDiv.style.marginTop = "8px";
-            lastPlayedDiv.style.fontWeight = "bold";
-            lastPlayedDiv.style.fontSize = "14px";
+            lastPlayedDiv.className = 'last-played';
             container.appendChild(lastPlayedDiv);
 
             markBtn = document.createElement('button');
+            markBtn.className = 'secondary';
             markBtn.textContent = "Mark as last played map";
             markBtn.style.display = "none";
             container.appendChild(markBtn);
@@ -279,6 +558,9 @@ let wooPlayed = false;
 function spinWheel() {
     if (wheel.spinning || wheel.names.length === 0) return;
     wheel.spinning = true;
+    wheel.winningIndex = null;
+    spinBtn.disabled = true;
+    spinBtn.textContent = "Spinning…";
     wooPlayed = false;
 
     const spinDuration = Math.random() * 5 + 5; // 5–10s
@@ -303,6 +585,8 @@ function spinWheel() {
             requestAnimationFrame(animateSpin);
         } else {
             wheel.spinning = false;
+            spinBtn.disabled = false;
+            spinBtn.textContent = "Spin";
             const degrees = (wheel.startAngle * 180 / Math.PI + 90) % 360;
             const arcd = 360 / wheel.names.length;
             wheel.winningIndex = Math.floor((360 - degrees) / arcd) % wheel.names.length;
@@ -317,14 +601,24 @@ function spinWheel() {
 
 
         function showWinnerDialog(wheelObj, parent) {
+            const winner = wheelObj.names[wheelObj.winningIndex];
             const dialog = document.createElement('div');
             dialog.className = "winnerDialog";
+            dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-label', 'Winner');
             dialog.innerHTML = `
-                <div>${wheelObj.names[wheelObj.winningIndex]}</div>
-                <button class="removeBtn">Remove Winner</button>
-                <button class="closeBtn">Close</button>
+                <div class="eyebrow">The winner is</div>
+                <div class="winner-name"></div>
+                <div class="actions">
+                    <button class="removeBtn">Remove winner</button>
+                    <button class="closeBtn secondary">Close</button>
+                </div>
             `;
+            dialog.querySelector('.winner-name').textContent = winner;
+            const c = wheelObj.colors[winner];
+            if (c) dialog.style.setProperty('--winner-color', c);
             parent.appendChild(dialog);
+            dialog.querySelector('.closeBtn').focus();
 
             dialog.querySelector('.removeBtn').onclick = () => {
                 wheelObj.names.splice(wheelObj.winningIndex, 1);
@@ -340,12 +634,21 @@ function spinWheel() {
         }
 
         function updateMarkButton() {
-            if (wheel.names.length === 1) markBtn.style.display = "inline-block";
+            if (wheel.names.length === 1) markBtn.style.display = "block";
             else markBtn.style.display = "none";
         }
 
         input.addEventListener('change', startWheel);
         spinBtn.addEventListener('click', spinWheel);
+
+        // Clicking the hub also spins
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scale = SIZE / rect.width;
+            const dx = (e.clientX - rect.left) * scale - SIZE / 2;
+            const dy = (e.clientY - rect.top) * scale - SIZE / 2;
+            if (Math.hypot(dx, dy) <= 44) spinWheel();
+        });
 
         startWheel();
     });

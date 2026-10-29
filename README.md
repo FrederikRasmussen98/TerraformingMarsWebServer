@@ -24,10 +24,8 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 - **Results Plotting**: Visual representation of player performance over time
 - **Data Export**: Backup and restore game results
 
-### Administration
-- **Role-Based Access Control**: Admin and user roles with specific permissions
-- **Fearless Draft Admin**: Special admin feature for house rule tracking
-- **Settings Management**: User preferences for music, images, and display options
+### Fearless Draft
+- **Fearless Draft Toggle**: Navbar switch that enables or disables fearless draft mode
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 
 ## Installation
@@ -49,11 +47,7 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
    pip install -r requirements.txt
    ```
 
-4. Configure credentials:
-   - Edit `PLAYER_CREDENTIALS.txt` with player usernames, passwords, and roles
-   - First player listed should have role: `admin`
-
-5. Run the web server:
+4. Run the web server:
    ```bash
    python ws.py
    ```
@@ -62,8 +56,7 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 ## Usage
 
 ### Recording Game Results
-1. Login with player credentials
-2. Select the season and number of players
+1. Select the season and number of players
 3. Use drag-and-drop (desktop) or click-to-place (all devices) to rank players
 4. Enter game scores with award/milestone winners
 5. Submit to save the game result
@@ -75,9 +68,9 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 - Last played map is excluded from future spins (CSV-tracked)
 - Map history stored in `map_history.csv`
 
-### Admin Features
-- **Fearless Draft**: Toggle and manage corporation count via Settings
-- **User Management**: Roles defined in `PLAYER_CREDENTIALS.txt`
+### Fearless Draft
+- Use the **Fearless Draft** switch in the navbar to enable or disable the mode
+- When enabled, a corporations-left counter is shown (Ctrl+click or long-press to edit)
 
 ## Project Structure
 
@@ -85,7 +78,6 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 ├── ws.py                    # Main Flask application & API endpoints
 ├── utils.py                 # Helper functions for data processing
 ├── requirements.txt         # Python dependencies
-├── PLAYER_CREDENTIALS.txt   # Player authentication & roles
 ├── map_history.csv          # CSV tracking of played maps
 ├── results.json             # Game results storage
 ├── user_settings.json       # User preferences
@@ -97,7 +89,6 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 │   ├── plots.html          # Performance statistics & charts
 │   ├── hallOfFame.html     # Season winners & achievements
 │   ├── wheelOfNames.html   # Spin the Wheel features
-│   ├── settings.html       # User & admin settings
 │   ├── houseRules.html     # Custom game rules
 │   ├── manage_results.html # Results management
 │   ├── navbar.html         # Navigation component
@@ -117,9 +108,8 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 ## Technical Details
 
 ### Backend Stack
-- **Framework**: Flask with Bcrypt authentication
+- **Framework**: Flask
 - **Data Storage**: JSON files with CSV tracking for map history
-- **Authentication**: Session-based with role-based access control
 - **Plotting**: Matplotlib for performance visualizations
 
 ### Frontend Stack
@@ -133,25 +123,19 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 
 ### Database
 - `results.json`: Game entries with players, scores, awards, milestones, season
-- `user_settings.json`: User preferences (music enabled, images enabled)
+- `user_settings.json`: Per-player winner image selection
 - `map_history.csv`: Map tracking with timestamp and name
-- `PLAYER_CREDENTIALS.txt`: UTF-8 encoded player authentication
 
 ## API Endpoints
-
-### Authentication
-- `POST /api/login` - User login
-- `POST /api/logout` - User logout
-- `GET /api/check_login` - Check login status
 
 ### Game Data
 - `POST /api/save_results` - Save game results
 - `GET /api/get_results` - Retrieve game history
 - `POST /api/save_plot` - Generate and save performance plot
 
-### Admin Features
-- `GET /api/get_fearless_draft` - Get fearless draft settings (admin only)
-- `POST /api/update_fearless_draft` - Update fearless draft settings (admin only)
+### Fearless Draft
+- `GET /get_corps_status` - Get fearless draft state and corporations left
+- `POST /api/set_fearless_draft` - Enable or disable fearless draft mode
 
 ### Map Tracking
 - `GET /api/get_last_map` - Get last played map from history
@@ -160,7 +144,6 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 ## Gameplay
 
 ### Players
-- Login with personal credentials
 - View personal and team statistics
 - Participate in game logging and award tracking
 
@@ -178,17 +161,6 @@ A web server for tracking Terraforming Mars board game sessions with seasonal re
 - Custom rules displayed on dedicated page
 
 ## Configuration
-
-### Player Credentials (PLAYER_CREDENTIALS.txt)
-```
-Username: Frederik
-Password: password123
-Role: admin
-
-Username: Player2
-Password: pass456
-Role: user
-```
 
 ### Season Themes
 - **Mars**: Red theme with Mars imagery

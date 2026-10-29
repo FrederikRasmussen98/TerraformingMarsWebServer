@@ -91,6 +91,70 @@ body.jupiter-theme {
     --table-font-family: 'Arial', sans-serif;
 }
 
+/* === Gaia Theme (blue, green, white) === */
+body.gaia-theme {
+    --body-bg: url('/static/images/earth.jpg');
+    --body-bg-color: #0a3d62;
+    --container-bg: rgba(10, 61, 98, 0.85);
+    --button-bg: #2e8b57;
+    --button-hover: #3aa76d;
+    --navbar-link-color: #ffffff;
+    --navbar-link-hover: #a8e6cf;
+    --navbar-link-hover-shadow: 0 0 15px rgba(46, 139, 87, 0.7);
+    --container-text-color: #ffffff;
+    --dialog-color: #1e6f5c;
+    --container-box-shadow: 0 4px 15px rgba(46, 139, 87, 0.5);
+    --text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+    --h1-text-color: #ffffff;
+    --h2-text-color: #a8e6cf;
+
+    --table-text-color: var(--container-text-color);
+    --table-border-color: #2e8b57;
+    --table-font-family: 'Arial', sans-serif;
+}
+
+body.gaia-theme .navbar-buttons a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffffff, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+body.gaia-theme .navbar-buttons a {
+    position: relative;
+}
+
+body.gaia-theme .navbar-buttons a:hover::after {
+    opacity: 1;
+}
+
+body.gaia-theme button:hover,
+body.gaia-theme #mute-btn:hover {
+    box-shadow: 0 0 20px rgba(46, 139, 87, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+body.gaia-theme table tr:hover {
+    background-color: rgba(46, 139, 87, 0.25) !important;
+}
+
+body.gaia-theme .plot-container {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+body.gaia-theme .fearless-counter {
+    background: linear-gradient(135deg, #0a3d62, #2e8b57);
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    box-shadow: 0 0 25px rgba(46, 139, 87, 0.6), 0 0 50px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
 /* Jupiter theme enhancements */
 body.jupiter-theme .container_simple,
 body.jupiter-theme .container {

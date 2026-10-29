@@ -242,6 +242,19 @@ def generate_plot():
             "MicrobeMorten": "gray"
         }
 
+    elif season == 4:  # Gaia colors (blue, green, white)
+        bg_color = (10/255, 61/255, 98/255, 0.6)
+        tick_color = 'white'
+
+        player_colors = {
+            "Frederik": "green",
+            "Best": "blue",
+            "Magnus": "gold",
+            "Raschke": "black",
+            "Alstrup": "red",
+            "MicrobeMorten": "gray"
+        }
+
 
     # Plot 1: Accumulated Scores
     fig, ax = plt.subplots(figsize=(10, 5), dpi=220)

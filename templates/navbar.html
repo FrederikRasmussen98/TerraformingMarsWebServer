@@ -17,6 +17,10 @@
                 <img src="/static/images/jupiter_god.png" alt="Jupiter">
                 <span>Zeus</span>
             </div>
+            <div class="god-portrait-option" data-season="4">
+                <img src="/static/images/gaia.png" alt="Gaia">
+                <span>Gaia</span>
+            </div>
         </div>
     </div>
 
@@ -150,13 +154,15 @@ const godOptions = document.querySelectorAll('.god-portrait-option');
 const godImages = {
     '1': '/static/images/mars_god.png',
     '2': '/static/images/venus_god.png',
-    '3': '/static/images/jupiter_god.png'
+    '3': '/static/images/jupiter_god.png',
+    '4': '/static/images/gaia.png'
 };
 
 const seasonLabels = {
     '1': 'Season of Ares',
     '2': 'Season of Aphrodite',
-    '3': 'Season of Zeus'
+    '3': 'Season of Zeus',
+    '4': 'Season of Gaia'
 };
 
 // Load saved season and update portrait
@@ -197,17 +203,21 @@ godOptions.forEach(option => {
         localStorage.setItem('selectedSeason', season);
         
         // Apply theme immediately
-        document.body.classList.remove('venus-theme', 'jupiter-theme');
+        document.body.classList.remove('venus-theme', 'jupiter-theme', 'gaia-theme');
         if (season === '2') {
             document.body.classList.add('venus-theme');
         } else if (season === '3') {
             document.body.classList.add('jupiter-theme');
+        } else if (season === '4') {
+            document.body.classList.add('gaia-theme');
         }
         
         // Update title if exists
         const title = document.getElementById('current-winner-title');
         if (title) {
-            if (season === '3') {
+            if (season === '4') {
+                title.textContent = 'Daughter of Gaia';
+            } else if (season === '3') {
                 title.textContent = 'Zeus\'s heir';
             } else if (season === '2') {
                 title.textContent = 'Afrodite\'s chosen';

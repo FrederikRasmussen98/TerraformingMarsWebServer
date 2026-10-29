@@ -25,11 +25,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedSeason = localStorage.getItem("selectedSeason") || "3";
 
     // Apply theme based on saved season
-    document.body.classList.remove("venus-theme", "jupiter-theme");
+    document.body.classList.remove("venus-theme", "jupiter-theme", "gaia-theme");
     if (savedSeason === "2") {
         document.body.classList.add("venus-theme");
     } else if (savedSeason === "3") {
         document.body.classList.add("jupiter-theme");
+    } else if (savedSeason === "4") {
+        document.body.classList.add("gaia-theme");
     }
 
     // If the select exists on this page, set its value
@@ -48,7 +50,9 @@ function handlePlayerSelection() {
 
     // Update the title based on season
     const title = document.getElementById("current-winner-title");
-    if (season === "3") {
+    if (season === "4") {
+        title.textContent = "Daughter of Gaia";
+    } else if (season === "3") {
         title.textContent = "Zeus's heir";
     } else if (season === "2") {
         title.textContent = "Aphrodite's chosen";
@@ -60,11 +64,13 @@ function handlePlayerSelection() {
     localStorage.setItem("selectedSeason", season);
 
     // Apply theme based on season
-    document.body.classList.remove("venus-theme", "jupiter-theme");
+    document.body.classList.remove("venus-theme", "jupiter-theme", "gaia-theme");
     if (season === "2") {
         document.body.classList.add("venus-theme");
     } else if (season === "3") {
         document.body.classList.add("jupiter-theme");
+    } else if (season === "4") {
+        document.body.classList.add("gaia-theme");
     }
 
     // Call your existing function to fetch plots

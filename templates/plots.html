@@ -372,17 +372,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedSeason = localStorage.getItem("selectedSeason") || "3";
 
     // Apply theme based on saved season
-    document.body.classList.remove("venus-theme", "jupiter-theme");
+    document.body.classList.remove("venus-theme", "jupiter-theme", "gaia-theme");
     if (savedSeason === "2") {
         document.body.classList.add("venus-theme");
     } else if (savedSeason === "3") {
         document.body.classList.add("jupiter-theme");
+    } else if (savedSeason === "4") {
+        document.body.classList.add("gaia-theme");
     }
     
     // Update the "Current Son of ..." header
     const winnerTitle = document.getElementById("current-winner-title");
     if (winnerTitle) {
-        if (savedSeason === "3") {
+        if (savedSeason === "4") {
+            winnerTitle.textContent = "Daughter of Gaia";
+        } else if (savedSeason === "3") {
             winnerTitle.textContent = "Zeus's heir";
         } else if (savedSeason === "2") {
             winnerTitle.textContent = "Aphrodite's chosen";
